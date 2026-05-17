@@ -179,7 +179,8 @@ onMounted(async () => {
 
   if (route.path.startsWith('/lobby/')) {
     try {
-      const res = await fetch(`/api/lobby/${currentLobbyId.value}`)
+      const base = import.meta.env.VITE_SERVER_URL || ''
+      const res = await fetch(`${base}/api/lobby/${currentLobbyId.value}`)
       if (res.ok) {
         const lobby = await res.json()
         applyLobby(lobby)

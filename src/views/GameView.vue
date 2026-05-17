@@ -432,7 +432,8 @@ onMounted(() => {
   socket.on('error', ({ message }) => showError(message))
 
   // Fetch lobby for host info and player list
-  fetch(`/api/lobby/${lobbyId.value}`)
+  const _base = import.meta.env.VITE_SERVER_URL || ''
+  fetch(`${_base}/api/lobby/${lobbyId.value}`)
     .then(r => r.ok ? r.json() : null)
     .then(lobby => {
       if (!lobby) return router.push('/')
