@@ -16,22 +16,8 @@
       <router-view />
     </main>
 
-    <!-- ═══ STATUS BAR ═══ -->
-    <footer class="status-bar">
-      <div class="sb-panel">
-        <span class="sb-globe">🌐</span>
-        <span>Готово</span>
-      </div>
-      <div class="sb-panel sb-center">© 2026 Avatar Lab.</div>
-      <div class="sb-panel">
-        <span class="signal">
-          <span class="sig-bar" style="height:4px" />
-          <span class="sig-bar" style="height:7px" />
-          <span class="sig-bar" style="height:10px" />
-          <span class="sig-bar" style="height:13px" />
-        </span>
-      </div>
-    </footer>
+    <!-- ═══ TASKBAR ═══ -->
+    <WinTaskbar />
 
     <!-- ═══ CRT OVERLAY (above everything) ═══ -->
     <div class="crt-overlay" aria-hidden="true">
@@ -42,6 +28,10 @@
     </div>
   </div>
 </template>
+
+<script setup>
+import WinTaskbar from './components/WinTaskbar.vue'
+</script>
 
 <style>
 /* ── Reset & tokens ── */
@@ -65,7 +55,7 @@
   --header-bg: #0a0f2e;
   --header-h: 110px;
   --sb-bg: #0d1540;
-  --sb-h: 24px;
+  --sb-h: 42px;
 }
 
 html, body { height: 100%; overflow-x: hidden; }
@@ -250,50 +240,7 @@ body {
   overflow-y: auto;
 }
 
-/* ── Status bar ── */
-.status-bar {
-  grid-area: sb;
-  background: rgba(5, 15, 50, 0.72);
-  backdrop-filter: blur(4px);
-  border-top: 1px solid rgba(80,130,220,0.3);
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  padding: 0 4px;
-  position: relative;
-  z-index: 10;
-  height: var(--sb-h);
-}
-.sb-panel {
-  border: 1px solid;
-  border-top-color: #253080;
-  border-left-color: #253080;
-  border-bottom-color: #4070cc;
-  border-right-color: #4070cc;
-  padding: 1px 6px;
-  font-size: 11px;
-  font-family: Tahoma, sans-serif;
-  color: #a0b4d0;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  height: 18px;
-}
-.sb-center { flex: 1; justify-content: center; }
-.sb-globe { font-size: 12px; }
-.signal { display: flex; align-items: flex-end; gap: 2px; }
-.sig-bar {
-  width: 4px;
-  background: #39ff14;
-  display: block;
-  animation: sigBlink 2s ease-in-out infinite;
-}
-.sig-bar:nth-child(2) { animation-delay: 0.2s; }
-.sig-bar:nth-child(3) { animation-delay: 0.4s; }
-.sig-bar:nth-child(4) { animation-delay: 0.6s; }
-@keyframes sigBlink {
-  0%, 80%, 100% { opacity: 1; } 90% { opacity: 0.3; }
-}
+/* status-bar styles moved to WinTaskbar.vue */
 
 /* ══════════════════════════════════════════
    SHARED DESIGN SYSTEM (used by all views)
