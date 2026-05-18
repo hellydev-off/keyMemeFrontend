@@ -41,6 +41,11 @@
           <span class="tc-ok">[&nbsp;{{ players.length }}&nbsp;/&nbsp;{{ settings.maxPlayers }}&nbsp;]</span>
           <span v-if="isHost" class="tc-host">&nbsp;&nbsp;[HOST]&nbsp;👑</span>
         </div>
+        <div class="term-count-bar">
+          <span class="tc-dim">&nbsp;&nbsp;&nbsp;</span>
+          <span class="tc-ok">{{ '█'.repeat(players.length) }}</span><span class="tc-dim">{{ '░'.repeat(Math.max(0, settings.maxPlayers - players.length)) }}</span>
+          <span class="tc-dim">&nbsp;{{ players.length }}/{{ settings.maxPlayers }}</span>
+        </div>
 
         <!-- Player table -->
         <div class="term-table">
@@ -106,13 +111,15 @@
         <div class="term-actions">
           <button
             v-if="isHost"
-            class="term-btn term-btn-start"
+            class="term-btn term-btn-primary"
             @click="startGame"
             :disabled="players.length < 2"
           >
             [ 🖥️&nbsp;&nbsp;НАЧАТЬ&nbsp;ИГРУ{{ players.length < 2 ? '&nbsp;(нужно&nbsp;2+)' : '' }} ]
           </button>
-          <p v-if="!isHost" class="tc-dim term-waiting">⏳ ожидание хоста...</p>
+          <p v-if="!isHost" class="tc-dim term-waiting">
+            <span class="tc-blue">&gt;&nbsp;</span>⏳ ожидание хоста...
+          </p>
 
           <button class="term-btn term-btn-leave" @click="showConfirm = true">
             [ 🚪&nbsp;&nbsp;ВЫЙТИ ]
@@ -282,7 +289,12 @@ onMounted(async () => {
     } catch {}
   }
   if (route.path.startsWith('/join/')) {
-    socket.emit('join_lobby', { lobbyId: currentLobbyId.value })
+    const doJoin = () => socket.emit('join_lobby', { lobbyId: currentLobbyId.value })
+    if (socket.connected) {
+      doJoin()
+    } else {
+      socket.once('connect', doJoin)
+    }
   }
 })
 
@@ -360,6 +372,7 @@ onUnmounted(() => {
 .tc-host  { color: #dcdcaa; }
 
 .term-blank { height: 0.6em; }
+.term-count-bar { font-size: 12px; letter-spacing: 1px; margin-bottom: 6px; }
 
 /* ── Log ── */
 .term-log {
@@ -492,6 +505,8 @@ onUnmounted(() => {
 .term-btn:hover:not(:disabled) { background: #1a1a1a; border-color: #569cd6; color: #fff; }
 .term-btn:active:not(:disabled) { background: #142030; }
 .term-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.term-btn-primary { border-color: #4ec9b0; color: #4ec9b0; }
+.term-btn-primary:hover:not(:disabled) { background: #0a2020; border-color: #4ec9b0; color: #7fffdf; }
 .term-btn-leave { border-color: #3a1a1a; color: #888; }
 .term-btn-leave:hover { border-color: #f44747; color: #f44747; background: #1a0a0a; }
 

@@ -58,7 +58,7 @@ import WinTaskbar from './components/WinTaskbar.vue'
   --sb-h: 42px;
 }
 
-html, body { height: 100%; overflow-x: hidden; }
+html, body { height: 100%; overflow: hidden; }
 body {
   font-family: 'Tahoma', 'MS Sans Serif', system-ui, sans-serif;
   background: #1a4fa0; /* fallback while SVG loads */
@@ -79,13 +79,12 @@ body {
 
 /* ── Page shell ── */
 .page-shell {
-  min-height: 100vh;
+  height: 100vh;
   display: grid;
   grid-template-rows: var(--header-h) 1fr var(--sb-h);
   grid-template-areas: "hdr" "main" "sb";
   position: relative;
-  overflow-x: clip;
-  overflow-y: visible;
+  overflow: hidden;
 }
 
 /* ── CRT overlay (above header, dialogs, status bar — everything) ── */
@@ -237,7 +236,7 @@ body {
   grid-area: main;
   position: relative;
   z-index: 5;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 /* status-bar styles moved to WinTaskbar.vue */

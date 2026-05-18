@@ -1,150 +1,128 @@
 <template>
-  <div class="winner-wrap">
-    <!-- Confetti for gameover -->
-    <div class="confetti-layer" v-if="isGameOver" aria-hidden="true">
-      <div v-for="i in 36" :key="i" class="confetti-piece" :style="confettiStyle(i)" />
+  <div class="winner-screen">
+    <div v-if="isGameOver" class="confetti-wrap" aria-hidden="true">
+      <div v-for="i in 30" :key="i" class="cp" :style="confettiStyle(i)" />
     </div>
 
-    <WinWindow
-      :title="isGameOver ? '🏆 Победитель игры!' : '🎉 Победитель раунда!'"
-      icon="🏆"
-      max-width="460px"
-    >
-      <div class="winner-body">
-        <div class="winner-main">
-          <img :src="winnerAvatar" class="winner-avatar" onerror="this.style.display='none'" />
-          <div class="winner-info">
-            <div class="winner-name">{{ winnerNick }}</div>
-            <div class="winner-sound" v-if="sound">🔊 {{ sound.name }}</div>
-          </div>
-        </div>
+    <p class="tc-ok title-line">{{ isGameOver ? '>> ИГРА ЗАВЕРШЕНА!' : '>> РАУНД ЗАВЕРШЁН!' }}</p>
+    <div class="term-blank" />
 
-        <hr class="win-sep" />
+    <div v-if="winnerId" class="winner-row">
+      <span class="tc-blue">&gt;&nbsp;</span>
+      <span class="tc-dim">{{ isGameOver ? 'ЧЕМПИОН: ' : 'ПОБЕДИТЕЛЬ: ' }}</span>
+      <span class="tc-ok winner-name">{{ winnerNick }}</span>
+    </div>
+    <div v-if="sound && !isGameOver" class="sound-row">
+      <span class="tc-dim">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Звук: </span>
+      <span class="tc-white">{{ sound.name }}</span>
+    </div>
 
-        <!-- Scores table -->
-        <div class="scores-listbox">
-          <div class="scores-header">
-            <span>Игрок</span>
-            <span>Очки</span>
-          </div>
-          <div
-            v-for="p in scores"
-            :key="p.socketId"
-            class="win-list-row score-row"
-            :class="{ 'win-selected': p.socketId === winnerId }"
-          >
-            <img :src="p.avatar" class="score-avatar" onerror="this.style.display='none'" />
-            <span class="score-name">{{ p.nickname }}</span>
-            <span class="score-pts">{{ p.score }} ⭐</span>
-          </div>
-        </div>
-
-        <hr class="win-sep" />
-
-        <div class="winner-actions">
-          <span v-if="!isHost" class="hint-text">
-            {{ isGameOver ? 'Ждём хоста...' : 'Следующий раунд через 5 сек...' }}
-          </span>
-          <button v-if="isHost && !isGameOver" class="win-btn win-btn-lg" @click="$emit('next-round')">
-            ▶ Следующий раунд
-          </button>
-          <button v-if="isHost && isGameOver" class="win-btn win-btn-lg" @click="$emit('restart')">
-            🔄 Сыграть снова
-          </button>
-        </div>
+    <div class="term-sep" />
+    <p class="tc-dim">&gt; {{ isGameOver ? 'Итоговый счёт:' : 'Счёт:' }}</p>
+    <div class="scores-list">
+      <div
+        v-for="(p, i) in sortedScores" :key="p.socketId"
+        class="score-row"
+        :class="{ 'score-winner': p.socketId === winnerId }"
+      >
+        <span class="tc-dim">{{ String(i + 1).padStart(2, '0') }}&nbsp;|&nbsp;</span>
+        <span class="score-nick tc-white">{{ p.nickname }}</span>
+        <span class="tc-dim">&nbsp;|&nbsp;</span>
+        <span class="tc-ok">{{ '★'.repeat(p.score) }}{{ '☆'.repeat(Math.max(0, 3 - p.score)) }}</span>
       </div>
-    </WinWindow>
+    </div>
+
+    <div class="term-sep" />
+    <div v-if="isHost">
+      <button v-if="!isGameOver" class="term-btn term-btn-primary" @click="$emit('next-round')">
+        [ ▶  СЛЕДУЮЩИЙ РАУНД ]
+      </button>
+      <button v-else class="term-btn term-btn-primary" @click="$emit('restart')">
+        [ 🔄  СЫГРАТЬ СНОВА ]
+      </button>
+    </div>
+    <p v-else class="tc-dim">&gt; Ждём хоста...</p>
   </div>
 </template>
 
 <script setup>
-import WinWindow from './WinWindow.vue'
+import { computed } from 'vue'
 
-defineProps({
-  winnerId: String,
+const props = defineProps({
+  winnerId:   String,
   winnerNick: String,
-  winnerAvatar: String,
-  sound: Object,
-  scores: Array,
+  sound:      Object,
+  scores:     Array,
   isGameOver: Boolean,
-  isHost: Boolean
+  isHost:     Boolean
 })
 defineEmits(['next-round', 'restart'])
 
+const sortedScores = computed(() =>
+  [...(props.scores || [])].sort((a, b) => b.score - a.score)
+)
+
 function confettiStyle(i) {
-  const colors = ['#1e4bcc', '#cc0000', '#008800', '#cc8800', '#7ec8ff', '#cc44cc']
+  const colors = ['#4ec9b0', '#569cd6', '#dcdcaa', '#f44747', '#4ec9b0']
   return {
-    left: `${Math.random() * 100}%`,
+    left: `${(i * 37 + 7) % 100}%`,
     background: colors[i % colors.length],
-    animationDelay: `${Math.random() * 3}s`,
-    animationDuration: `${3 + Math.random() * 3}s`,
-    width: `${8 + Math.random() * 8}px`,
-    height: `${8 + Math.random() * 8}px`,
-    borderRadius: Math.random() > 0.5 ? '50%' : '0'
+    animationDelay: `${(i * 0.23) % 3}s`,
+    animationDuration: `${3 + (i * 0.17) % 2}s`,
+    width:  `${8 + (i % 5)}px`,
+    height: `${8 + (i % 5)}px`,
+    borderRadius: i % 2 === 0 ? '50%' : '0'
   }
 }
 </script>
 
 <style scoped>
-.winner-wrap { position: relative; width: 100%; }
+.winner-screen { display: flex; flex-direction: column; gap: 4px; font-family: 'Courier New', monospace; }
+.tc-dim   { color: #555; }
+.tc-white { color: #ccc; }
+.tc-blue  { color: #569cd6; }
+.tc-ok    { color: #4ec9b0; }
+.term-blank { height: 0.4em; }
+.term-sep { border: none; border-top: 1px solid #222; margin: 6px 0; }
 
-.confetti-layer {
+.title-line { font-size: 14px; }
+.winner-row { display: flex; align-items: baseline; font-size: 14px; }
+.winner-name { font-size: 16px; font-weight: bold; }
+.sound-row { font-size: 13px; }
+
+.scores-list { display: flex; flex-direction: column; gap: 2px; }
+.score-row { display: flex; align-items: baseline; font-size: 13px; }
+.score-nick { min-width: 100px; }
+.score-winner .score-nick { color: #4ec9b0; }
+
+.term-btn {
+  background: transparent;
+  border: 1px solid #3a3a3a;
+  color: #888;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: background 0.1s, border-color 0.1s, color 0.1s;
+}
+.term-btn:hover { background: #1a1a1a; border-color: #569cd6; color: #fff; }
+.term-btn-primary { border-color: #4ec9b0; color: #4ec9b0; }
+.term-btn-primary:hover { background: #0a2020; color: #7fffdf; }
+
+.confetti-wrap {
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 100;
   overflow: hidden;
 }
-.confetti-piece {
+.cp {
   position: absolute;
   top: -20px;
   animation: confettiFall linear infinite both;
 }
-
-.winner-body { display: flex; flex-direction: column; gap: 8px; }
-.winner-main {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: white;
-  border: 2px solid;
-  border-top-color: var(--win-dark);
-  border-left-color: var(--win-dark);
-  border-bottom-color: var(--win-light);
-  border-right-color: var(--win-light);
-  padding: 10px;
+@keyframes confettiFall {
+  0%   { transform: translateY(-20px) rotate(0deg);  opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
 }
-.winner-avatar { width: 56px; height: 56px; border-radius: 50%; border: 2px solid var(--win-dark); }
-.winner-info { display: flex; flex-direction: column; gap: 4px; }
-.winner-name { font-size: 18px; font-weight: bold; }
-.winner-sound { font-size: 13px; color: #000080; font-family: 'Tahoma', sans-serif; }
-
-.scores-listbox {
-  border: 2px solid;
-  border-top-color: var(--win-dark);
-  border-left-color: var(--win-dark);
-  border-bottom-color: var(--win-light);
-  border-right-color: var(--win-light);
-  background: white;
-  max-height: 200px;
-  overflow-y: auto;
-}
-.scores-header {
-  display: flex;
-  justify-content: space-between;
-  padding: 3px 8px;
-  background: var(--win-bg);
-  font-size: 11px;
-  font-weight: bold;
-  border-bottom: 1px solid var(--win-dark);
-  color: var(--text-muted);
-  text-transform: uppercase;
-}
-.score-row { font-size: 13px; }
-.score-avatar { width: 16px; height: 16px; border-radius: 50%; }
-.score-name { flex: 1; }
-.score-pts { font-weight: bold; color: #604000; }
-
-.winner-actions { display: flex; justify-content: flex-end; align-items: center; gap: 8px; }
-.hint-text { font-size: 12px; color: var(--text-muted); }
 </style>
