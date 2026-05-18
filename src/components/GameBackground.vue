@@ -1,225 +1,155 @@
 <template>
-  <div class="gbg" aria-hidden="true">
-    <!-- Circuit grid fills whole bg -->
-    <div class="gbg-circuit" />
+  <div class="xp-bg" aria-hidden="true">
+    <svg
+      class="xp-svg"
+      viewBox="0 0 1920 1080"
+      preserveAspectRatio="xMidYMid slice"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <defs>
+        <!-- Sky gradient -->
+        <linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stop-color="#1a4fa0" />
+          <stop offset="38%"  stop-color="#3585cc" />
+          <stop offset="68%"  stop-color="#6ab4e8" />
+          <stop offset="82%"  stop-color="#9ed0f0" />
+          <stop offset="100%" stop-color="#c2e4f8" />
+        </linearGradient>
 
-    <!-- Scanline overlay -->
-    <div class="gbg-scanlines" />
+        <!-- Hill gradients -->
+        <linearGradient id="hillG1" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stop-color="#82cc48" />
+          <stop offset="55%"  stop-color="#52a82e" />
+          <stop offset="100%" stop-color="#2e6e18" />
+        </linearGradient>
+        <linearGradient id="hillG2" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stop-color="#4ea030" />
+          <stop offset="100%" stop-color="#1c4e0c" />
+        </linearGradient>
+        <linearGradient id="hillG3" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stop-color="#3a8820" />
+          <stop offset="100%" stop-color="#143808" />
+        </linearGradient>
 
-    <!-- Binary columns -->
-    <div class="bin-col bin-col-1">{{ binText }}</div>
-    <div class="bin-col bin-col-2">{{ binText2 }}</div>
+        <!-- Sun radial glow -->
+        <radialGradient id="sunG" cx="62%" cy="28%" r="38%">
+          <stop offset="0%"   stop-color="rgba(255,248,200,0.38)" />
+          <stop offset="60%"  stop-color="rgba(255,240,160,0.10)" />
+          <stop offset="100%" stop-color="rgba(255,255,255,0)" />
+        </radialGradient>
 
-    <!-- cd.png — bottom-left, rainbow spin + glow -->
-    <img src="/mainPage/cd.png" class="gbg-obj gbg-cd" />
+        <!-- Horizon haze -->
+        <linearGradient id="hazeG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stop-color="rgba(200,228,248,0)" />
+          <stop offset="100%" stop-color="rgba(200,228,248,0.22)" />
+        </linearGradient>
+      </defs>
 
-    <!-- cassette.png — top-left, dramatic wobble + purple glow -->
-    <img src="/mainPage/cassette.png" class="gbg-obj gbg-cassette" />
+      <!-- Sky base -->
+      <rect width="1920" height="1080" fill="url(#skyG)" />
 
-    <!-- gameboy.png — right side, bounce + green flicker -->
-    <img src="/mainPage/gameboy.png" class="gbg-obj gbg-gameboy" />
+      <!-- Sun glow -->
+      <rect width="1920" height="1080" fill="url(#sunG)" />
 
-    <!-- imac.png — bottom-right, float + cyan glow + terminal -->
-    <div class="gbg-pc-wrap">
-      <img src="/mainPage/imac.png" class="gbg-imac-img" />
-      <div class="gbg-terminal">
-        <span class="gbg-t-line">C:\KEYMEME&gt; _</span>
-        <span class="gbg-t-line gbg-t-ready">KEYMEME READY.</span>
-        <span class="gbg-cursor">█</span>
-      </div>
-    </div>
+      <!-- Horizon haze -->
+      <rect x="0" y="540" width="1920" height="200" fill="url(#hazeG)" />
+
+      <!-- Far hill (pale, distant) -->
+      <path
+        d="M-60,740 C80,610 260,555 480,600
+           C680,640 880,700 1120,610
+           C1330,530 1540,480 1760,555
+           C1880,595 1960,625 2020,618
+           L2020,1080 L-60,1080 Z"
+        fill="#6ab840"
+        opacity="0.55"
+      />
+
+      <!-- Main Bliss hill -->
+      <path
+        d="M-60,775 C40,645 180,568 400,618
+           C595,662 800,730 1050,645
+           C1255,572 1465,512 1695,580
+           C1830,618 1930,658 2020,645
+           L2020,1080 L-60,1080 Z"
+        fill="url(#hillG1)"
+      />
+
+      <!-- Mid foreground -->
+      <path
+        d="M-60,875 C100,808 310,775 540,822
+           C740,862 940,882 1180,835
+           C1380,794 1590,768 1800,828
+           C1905,858 1975,875 2020,870
+           L2020,1080 L-60,1080 Z"
+        fill="url(#hillG2)"
+      />
+
+      <!-- Foreground (darkest) -->
+      <path
+        d="M-60,960 C80,928 220,910 400,940
+           C580,968 780,978 1000,958
+           C1200,940 1440,920 1680,952
+           C1820,968 1940,975 2020,970
+           L2020,1080 L-60,1080 Z"
+        fill="url(#hillG3)"
+      />
+
+      <!-- ── Clouds ── -->
+
+      <!-- Cloud cluster 1 (left) -->
+      <g opacity="0.94">
+        <ellipse cx="270" cy="200" rx="138" ry="50" fill="white" />
+        <ellipse cx="355" cy="176" rx="100" ry="45" fill="white" />
+        <ellipse cx="188" cy="218" rx="88"  ry="36" fill="rgba(255,255,255,0.9)" />
+        <ellipse cx="305" cy="212" rx="115" ry="28" fill="white" />
+        <!-- Shadow base -->
+        <ellipse cx="282" cy="235" rx="130" ry="22" fill="rgba(180,210,240,0.35)" />
+      </g>
+
+      <!-- Cloud cluster 2 (center-right) -->
+      <g opacity="0.90">
+        <ellipse cx="1185" cy="148" rx="162" ry="54" fill="white" />
+        <ellipse cx="1295" cy="124" rx="108" ry="49" fill="white" />
+        <ellipse cx="1082" cy="168" rx="95"  ry="40" fill="rgba(255,255,255,0.88)" />
+        <ellipse cx="1210" cy="162" rx="148" ry="30" fill="white" />
+        <ellipse cx="1195" cy="185" rx="155" ry="22" fill="rgba(180,210,240,0.3)" />
+      </g>
+
+      <!-- Small cloud (center) -->
+      <g opacity="0.78">
+        <ellipse cx="755"  cy="285" rx="92"  ry="33" fill="white" />
+        <ellipse cx="820"  cy="268" rx="68"  ry="30" fill="white" />
+        <ellipse cx="700"  cy="298" rx="60"  ry="24" fill="rgba(255,255,255,0.85)" />
+      </g>
+
+      <!-- Far-right cloud -->
+      <g opacity="0.72">
+        <ellipse cx="1690" cy="195" rx="115" ry="42" fill="white" />
+        <ellipse cx="1768" cy="176" rx="82"  ry="37" fill="white" />
+        <ellipse cx="1625" cy="210" rx="70"  ry="28" fill="rgba(255,255,255,0.8)" />
+      </g>
+
+      <!-- Tiny cloud upper-center -->
+      <g opacity="0.58">
+        <ellipse cx="960"  cy="135" rx="60"  ry="22" fill="white" />
+        <ellipse cx="1010" cy="122" rx="45"  ry="20" fill="white" />
+      </g>
+    </svg>
   </div>
 </template>
 
-<script setup>
-const row = () => Array.from({ length: 36 }, () => Math.round(Math.random())).join(' ')
-const binText  = Array.from({ length: 80 }, row).join('\n')
-const binText2 = Array.from({ length: 80 }, row).join('\n')
-</script>
-
 <style scoped>
-/* ─── Base layer ─── */
-.gbg {
+.xp-bg {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
-  background: #0a0f2e;
 }
-
-.gbg-circuit {
-  position: absolute;
-  inset: 0;
-  background-image:
-    radial-gradient(circle, #1a2a6e 1px, transparent 1px),
-    linear-gradient(rgba(30,75,204,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(30,75,204,0.04) 1px, transparent 1px);
-  background-size: 28px 28px, 56px 56px, 56px 56px;
-}
-
-.gbg-scanlines {
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 3px,
-    rgba(0,0,20,0.12) 3px,
-    rgba(0,0,20,0.12) 4px
-  );
-  pointer-events: none;
-}
-
-/* ─── Binary rain ─── */
-.bin-col {
-  position: absolute;
-  top: 0;
-  font-family: monospace;
-  font-size: 11px;
-  color: #1e4bcc;
-  opacity: 0.25;
-  white-space: pre;
-  line-height: 1.55;
-  animation: binScroll 18s linear infinite;
-  user-select: none;
-}
-.bin-col-1 { left: 6px;  animation-delay: 0s; }
-.bin-col-2 { left: 80px; animation-delay: -9s; }
-
-@keyframes binScroll {
-  from { transform: translateY(-50%); }
-  to   { transform: translateY(0%); }
-}
-
-/* ─── Shared ─── */
-.gbg-obj {
-  position: absolute;
-  user-select: none;
-}
-
-/* ═══════════════════════════════
-   CD  —  rainbow spin, big glow
-   ═══════════════════════════════ */
-.gbg-cd {
-  width: 260px;
-  bottom: 30px;
-  left: 180px;
-  transform-origin: center;
-  animation: cdSpin 7s linear infinite, cdGlow 3.5s ease-in-out infinite alternate;
-}
-@keyframes cdSpin {
-  0%   { transform: rotate(0deg)   scale(1);    filter: hue-rotate(0deg)   drop-shadow(0 0 18px rgba(255,80,80,0.8)); }
-  25%  {                                         filter: hue-rotate(90deg)  drop-shadow(0 0 28px rgba(80,255,80,0.9)); }
-  50%  { transform: rotate(180deg) scale(1.04); filter: hue-rotate(180deg) drop-shadow(0 0 36px rgba(80,80,255,1));   }
-  75%  {                                         filter: hue-rotate(270deg) drop-shadow(0 0 28px rgba(255,80,255,0.9)); }
-  100% { transform: rotate(360deg) scale(1);    filter: hue-rotate(360deg) drop-shadow(0 0 18px rgba(255,80,80,0.8)); }
-}
-@keyframes cdGlow {
-  from { opacity: 0.8; }
-  to   { opacity: 1; }
-}
-
-/* ═══════════════════════════════
-   CASSETTE  —  wobble, purple
-   ═══════════════════════════════ */
-.gbg-cassette {
-  width: 300px;
-  top: 120px;
-  left: -20px;
-  animation: cassetteWobble 4s ease-in-out infinite;
-}
-@keyframes cassetteWobble {
-  0%   { transform: rotate(-7deg) translateY(0);    filter: drop-shadow(0 0 10px rgba(160,60,255,0.5)); }
-  20%  { transform: rotate(7deg)  translateY(-12px); filter: drop-shadow(0 0 26px rgba(200,80,255,1)); }
-  40%  { transform: rotate(-5deg) translateY(-6px);  filter: drop-shadow(0 0 14px rgba(160,60,255,0.6)); }
-  60%  { transform: rotate(6deg)  translateY(-16px); filter: drop-shadow(0 0 32px rgba(255,100,255,1)); }
-  80%  { transform: rotate(-4deg) translateY(-8px);  filter: drop-shadow(0 0 18px rgba(160,60,255,0.7)); }
-  100% { transform: rotate(-7deg) translateY(0);    filter: drop-shadow(0 0 10px rgba(160,60,255,0.5)); }
-}
-
-/* ═══════════════════════════════
-   GAMEBOY  —  bounce, green
-   ═══════════════════════════════ */
-.gbg-gameboy {
-  width: 170px;
-  top: 50%;
-  right: 10px;
-  transform-origin: center bottom;
-  animation: gameboyBounce 3.5s cubic-bezier(.36,.07,.19,.97) infinite;
-}
-@keyframes gameboyBounce {
-  0%   { transform: translateY(-50%) rotate(-3deg) scale(1);    filter: drop-shadow(0 0 10px rgba(60,255,120,0.5)); }
-  20%  { transform: translateY(calc(-50% - 24px)) rotate(4deg) scale(1.06); filter: drop-shadow(0 0 30px rgba(60,255,120,1)); }
-  35%  { transform: translateY(calc(-50% - 12px)) rotate(-2deg) scale(1.03); filter: drop-shadow(0 0 16px rgba(60,255,120,0.7)); }
-  50%  { transform: translateY(calc(-50% - 28px)) rotate(5deg) scale(1.08); filter: drop-shadow(0 0 36px rgba(60,255,180,1)); }
-  70%  { transform: translateY(calc(-50% - 8px)) rotate(-1deg)  scale(1.02); filter: drop-shadow(0 0 12px rgba(60,255,120,0.5)); }
-  100% { transform: translateY(-50%) rotate(-3deg) scale(1);    filter: drop-shadow(0 0 10px rgba(60,255,120,0.5)); }
-}
-
-/* ═══════════════════════════════
-   iMAC  —  float, cyan glow
-   ═══════════════════════════════ */
-.gbg-pc-wrap {
-  position: absolute;
-  bottom: 20px;
-  right: 200px;
-  width: 280px;
-  animation: imacFloat 5s ease-in-out infinite alternate;
-}
-.gbg-imac-img {
-  width: 280px;
+.xp-svg {
+  width: 100%;
+  height: 100%;
   display: block;
-  filter: drop-shadow(0 0 16px rgba(80,180,255,0.6));
-}
-@keyframes imacFloat {
-  from { transform: translateY(0);    filter: drop-shadow(0 0 14px rgba(80,180,255,0.5)); }
-  to   { transform: translateY(-20px); filter: drop-shadow(0 0 34px rgba(80,220,255,0.95)); }
-}
-
-.gbg-terminal {
-  position: absolute;
-  top: 20%;
-  left: 16%;
-  right: 14%;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  font-family: 'Courier New', monospace;
-  font-size: 8.5px;
-  color: #39ff14;
-  text-shadow: 0 0 6px #39ff14, 0 0 12px #39ff14;
-  overflow: hidden;
-  pointer-events: none;
-}
-.gbg-t-line { white-space: nowrap; animation: termTypein 0.5s steps(18) both; }
-.gbg-t-ready { animation-delay: 0.6s; opacity: 0; animation-fill-mode: both; }
-.gbg-cursor  { animation: gbgBlink 0.7s step-end infinite; font-size: 9px; }
-
-@keyframes termTypein {
-  from { width: 0; opacity: 0; }
-  to   { width: 100%; opacity: 1; }
-}
-@keyframes gbgBlink {
-  0%, 100% { opacity: 1; } 50% { opacity: 0; }
-}
-
-/* ─── Responsive ─── */
-@media (max-width: 1100px) {
-  .gbg-cassette { width: 220px; }
-  .gbg-cd { width: 200px; left: 160px; }
-  .gbg-pc-wrap { width: 220px; right: 170px; }
-  .gbg-imac-img { width: 220px; }
-  .gbg-gameboy { width: 130px; }
-}
-@media (max-width: 900px) {
-  .gbg-cassette, .gbg-gameboy { display: none; }
-  .gbg-cd { width: 150px; left: 8px; }
-  .gbg-pc-wrap { right: 8px; width: 170px; }
-  .gbg-imac-img { width: 170px; }
-}
-@media (max-width: 600px) {
-  .gbg-cd, .gbg-pc-wrap { display: none; }
-  .bin-col { display: none; }
 }
 </style>

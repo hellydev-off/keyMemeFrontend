@@ -32,6 +32,14 @@
         </span>
       </div>
     </footer>
+
+    <!-- ═══ CRT OVERLAY (above everything) ═══ -->
+    <div class="crt-overlay" aria-hidden="true">
+      <div class="crt-scanlines" />
+      <div class="crt-vignette" />
+      <div class="crt-chromatic" />
+      <div class="crt-flicker" />
+    </div>
   </div>
 </template>
 
@@ -63,9 +71,20 @@
 html, body { height: 100%; overflow-x: hidden; }
 body {
   font-family: 'Tahoma', 'MS Sans Serif', system-ui, sans-serif;
-  background: var(--page-bg);
+  background: #1a4fa0; /* fallback while SVG loads */
   color: var(--text);
   font-size: 13px;
+  /* Screen wobble on the whole document */
+  animation: crtWobble 9s ease-in-out infinite;
+}
+
+@keyframes crtWobble {
+  0%,100% { transform: translate(0,    0)    scale(1);      }
+  18%      { transform: translate(-0.4px, 0.3px)  scale(1.0004); }
+  36%      { transform: translate(0.3px,  -0.4px) scale(0.9998); }
+  54%      { transform: translate(-0.3px, 0.5px)  scale(1.0003); }
+  72%      { transform: translate(0.5px,  -0.2px) scale(0.9999); }
+  88%      { transform: translate(-0.2px, 0.3px)  scale(1.0002); }
 }
 
 /* ── Page shell ── */
@@ -75,22 +94,80 @@ body {
   grid-template-rows: var(--header-h) 1fr var(--sb-h);
   grid-template-areas: "hdr" "main" "sb";
   position: relative;
-  /* clip only horizontally so header images can overflow downward */
   overflow-x: clip;
   overflow-y: visible;
+}
+
+/* ── CRT overlay (above header, dialogs, status bar — everything) ── */
+.crt-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  pointer-events: none;
+}
+
+/* Scanlines */
+.crt-scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.07) 2px,
+    rgba(0,0,0,0.07) 4px
+  );
+}
+
+/* Vignette */
+.crt-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at 50% 50%,
+    transparent 38%,
+    rgba(0,0,0,0.62) 100%
+  );
+}
+
+/* Chromatic aberration: red fringe left, blue right, slight green top */
+.crt-chromatic {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 0%   50%,  rgba(255,30,30,0.045) 0%, transparent 22%),
+    radial-gradient(ellipse at 100% 50%,  rgba(30,30,255,0.045) 0%, transparent 22%),
+    radial-gradient(ellipse at 50%  0%,   rgba(30,200,30,0.025) 0%, transparent 18%),
+    radial-gradient(ellipse at 50%  100%, rgba(0,0,0,0.12)      0%, transparent 20%);
+}
+
+/* Subtle random flicker */
+.crt-flicker {
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0);
+  animation: crtFlicker 0.12s steps(1) infinite;
+}
+@keyframes crtFlicker {
+  0%,91%       { opacity: 0; }
+  92%          { opacity: 0.030; }
+  93%          { opacity: 0; }
+  96%          { opacity: 0; }
+  97%          { opacity: 0.018; }
+  100%         { opacity: 0; }
 }
 
 /* ── Header ── */
 .site-header {
   grid-area: hdr;
-  background: var(--header-bg);
+  background: rgba(5, 15, 50, 0.72);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: space-between;
   position: relative;
   z-index: 10;
-  border-bottom: 2px solid #253080;
-  /* allow images to overflow above and below */
+  border-bottom: 1px solid rgba(80,130,220,0.4);
   overflow: visible;
 }
 
@@ -176,8 +253,9 @@ body {
 /* ── Status bar ── */
 .status-bar {
   grid-area: sb;
-  background: var(--sb-bg);
-  border-top: 1px solid #253080;
+  background: rgba(5, 15, 50, 0.72);
+  backdrop-filter: blur(4px);
+  border-top: 1px solid rgba(80,130,220,0.3);
   display: flex;
   align-items: center;
   gap: 2px;
