@@ -5,6 +5,7 @@ import HomeView from './views/HomeView.vue'
 import LobbyCreate from './views/LobbyCreate.vue'
 import WaitingRoom from './views/WaitingRoom.vue'
 import GameView from './views/GameView.vue'
+import AdminView from './views/AdminView.vue'
 import './style.css'
 
 const router = createRouter({
@@ -14,7 +15,8 @@ const router = createRouter({
     { path: '/create', component: LobbyCreate },
     { path: '/lobby/:id', component: WaitingRoom },
     { path: '/join/:id', component: WaitingRoom },
-    { path: '/game/:id', component: GameView }
+    { path: '/game/:id', component: GameView },
+    { path: '/admin', component: AdminView }
   ]
 })
 

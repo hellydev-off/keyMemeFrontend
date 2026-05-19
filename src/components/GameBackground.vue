@@ -1,5 +1,12 @@
 <template>
   <div class="xp-bg" aria-hidden="true">
+
+    <!-- Decorative side images -->
+    <img src="/home/net.png"      class="deco deco-net"  alt="" />
+    <img src="/home/disc_pix.png" class="deco deco-disc" alt="" />
+    <img src="/home/pc_pix.png"   class="deco deco-pc"   alt="" />
+    <img src="/home/cd_pix.png"   class="deco deco-cd"   alt="" />
+
     <svg
       class="xp-svg"
       viewBox="0 0 1920 1080"
@@ -144,6 +151,7 @@
   position: fixed;
   inset: 0;
   z-index: 0;
+  isolation: isolate;
   pointer-events: none;
   overflow: hidden;
 }
@@ -151,5 +159,81 @@
   width: 100%;
   height: 100%;
   display: block;
+}
+
+/* ── Decorative side images ── */
+.deco {
+  position: absolute;
+  bottom: 42px; /* above taskbar */
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Left: net — upper, disc — lower */
+.deco-net {
+  left: clamp(6px, 1.5vw, 24px);
+  bottom: calc(42px + 28vh);
+  width: clamp(110px, 11vw, 190px);
+  opacity: 0.72;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.28))
+          drop-shadow(0 0 12px rgba(79, 195, 247, 0.18));
+  animation: floatNet 5s ease-in-out infinite alternate;
+  transform-origin: bottom center;
+}
+
+.deco-disc {
+  left: clamp(12px, 2.5vw, 48px);
+  bottom: calc(42px + 2vh);
+  width: clamp(100px, 10vw, 170px);
+  opacity: 0.68;
+  filter: drop-shadow(0 6px 16px rgba(0, 0, 80, 0.3))
+          drop-shadow(0 0 14px rgba(120, 80, 255, 0.2));
+  animation: floatDisc 4s ease-in-out infinite alternate;
+  transform-origin: bottom center;
+}
+
+/* Right: pc — upper, cd — lower */
+.deco-pc {
+  right: clamp(6px, 1.5vw, 24px);
+  bottom: calc(42px + 26vh);
+  width: clamp(120px, 12vw, 200px);
+  opacity: 0.72;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.28))
+          drop-shadow(0 0 12px rgba(255, 200, 80, 0.18));
+  animation: floatPc 4.5s ease-in-out infinite alternate;
+  transform-origin: bottom center;
+}
+
+.deco-cd {
+  right: clamp(12px, 3vw, 60px);
+  bottom: calc(42px + 2vh);
+  width: clamp(90px, 9vw, 155px);
+  opacity: 0.65;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.24))
+          drop-shadow(0 0 10px rgba(79, 195, 247, 0.22));
+  animation: floatCd 6s ease-in-out infinite alternate;
+  transform-origin: bottom center;
+}
+
+@keyframes floatNet {
+  from { transform: translateY(0)    rotate(-2deg) scale(1);    }
+  to   { transform: translateY(-18px) rotate(2.5deg) scale(1.02); }
+}
+@keyframes floatDisc {
+  from { transform: translateY(-4px) rotate(3deg)  scale(1);    }
+  to   { transform: translateY(14px) rotate(-2deg) scale(0.97); }
+}
+@keyframes floatPc {
+  from { transform: translateY(0)    rotate(2deg)  scale(1);    }
+  to   { transform: translateY(-22px) rotate(-3deg) scale(1.03); }
+}
+@keyframes floatCd {
+  from { transform: translateY(-6px) rotate(-4deg) scale(1.01); }
+  to   { transform: translateY(10px) rotate(3deg)  scale(0.98); }
+}
+
+/* Hide side images when screen too narrow for them to fit */
+@media (max-width: 900px) {
+  .deco { display: none; }
 }
 </style>

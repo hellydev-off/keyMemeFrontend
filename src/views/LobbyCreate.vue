@@ -1,118 +1,101 @@
 <template>
-  <GameBackground />
-
-  <div class="term-wrap">
-    <div class="term-box">
+  <div class="create-wrap">
+    <div class="win-window create-window">
 
       <!-- Titlebar -->
-      <div class="term-titlebar">
-        <span class="term-path">C:\KEYMEME\create&gt; cmd.exe</span>
-        <div class="term-win-btns">
-          <span class="twb">─</span>
-          <span class="twb">□</span>
-          <span class="twb twb-x" @click="router.push('/')">✕</span>
+      <div class="win-titlebar">
+        <div class="win-titlebar-left">
+          <span class="win-title-icon"><PixelIcon name="gamepad" :size="14" /></span>
+          <span class="win-title-text">Создать игру — Настройки лобби</span>
+        </div>
+        <div class="win-title-btns">
+          <button class="win-ctrl">─</button>
+          <button class="win-ctrl">□</button>
+          <button class="win-ctrl win-ctrl-close" @click="router.push('/')">✕</button>
         </div>
       </div>
 
-      <div class="term-body">
-
-        <p class="tc-dim">Мастер создания лобби [Key Meme v1.0]</p>
-        <p class="tc-dim">Заполни параметры и нажми СОЗДАТЬ.</p>
-        <div class="term-blank" />
+      <div class="create-body">
 
         <!-- Lobby name -->
-        <div class="term-field">
-          <div class="term-field-label">
-            <span class="tc-blue">&gt;&nbsp;</span>
-            <span class="tc-white">Название лобби:</span>
-          </div>
-          <div class="term-input-row">
-            <span class="tc-dim prompt-indent">│&nbsp;&nbsp;</span>
-            <input
-              class="term-input term-input-wide"
-              v-model="lobbyName"
-              placeholder="Новая игра"
-              maxlength="40"
-            />
-          </div>
+        <div class="field-group">
+          <label class="field-label"><PixelIcon name="pencil" :size="16" /> Название лобби</label>
+          <input
+            class="xp-input field-input"
+            v-model="lobbyName"
+            placeholder="Новая игра"
+            maxlength="40"
+          />
         </div>
 
-        <div class="term-blank" />
+        <hr class="win-sep" />
 
         <!-- Max players -->
-        <div class="term-field">
-          <div class="term-field-label">
-            <span class="tc-blue">&gt;&nbsp;</span>
-            <span class="tc-white">Максимум игроков:</span>
-            <span class="tc-dim">&nbsp;(2–10)</span>
-          </div>
-          <div class="term-spinner-row">
-            <span class="tc-dim prompt-indent">│&nbsp;&nbsp;</span>
-            <button class="term-spin-btn" @click="settings.maxPlayers = Math.max(2, settings.maxPlayers - 1)">[ ─ ]</button>
-            <span class="term-spin-val tc-ok">{{ String(settings.maxPlayers).padStart(2, '0') }}</span>
-            <button class="term-spin-btn" @click="settings.maxPlayers = Math.min(10, settings.maxPlayers + 1)">[ + ]</button>
-            <span class="tc-dim spin-bar">{{ '█'.repeat(settings.maxPlayers - 1) }}{{ '░'.repeat(10 - settings.maxPlayers) }}</span>
+        <div class="field-group">
+          <label class="field-label"><PixelIcon name="people" :size="16" /> Максимум игроков</label>
+          <div class="spinner-row">
+            <button class="spin-btn" @click="settings.maxPlayers = Math.max(2, settings.maxPlayers - 1)">◀</button>
+            <div class="spin-display">
+              <span class="spin-value">{{ settings.maxPlayers }}</span>
+              <div class="spin-bar">
+                <div
+                  class="spin-fill"
+                  :style="{ width: ((settings.maxPlayers - 2) / 8 * 100) + '%' }"
+                />
+              </div>
+              <span class="spin-hint">из 10</span>
+            </div>
+            <button class="spin-btn" @click="settings.maxPlayers = Math.min(10, settings.maxPlayers + 1)">▶</button>
           </div>
         </div>
 
-        <div class="term-blank" />
+        <hr class="win-sep" />
 
         <!-- Points to win -->
-        <div class="term-field">
-          <div class="term-field-label">
-            <span class="tc-blue">&gt;&nbsp;</span>
-            <span class="tc-white">Очков для победы:</span>
-            <span class="tc-dim">&nbsp;(1–3)</span>
-          </div>
-          <div class="term-spinner-row">
-            <span class="tc-dim prompt-indent">│&nbsp;&nbsp;</span>
-            <button class="term-spin-btn" @click="settings.pointsToWin = Math.max(1, settings.pointsToWin - 1)">[ ─ ]</button>
-            <span class="term-spin-val tc-ok">{{ String(settings.pointsToWin).padStart(2, '0') }}</span>
-            <button class="term-spin-btn" @click="settings.pointsToWin = Math.min(3, settings.pointsToWin + 1)">[ + ]</button>
-            <span class="tc-dim spin-bar">{{ '★'.repeat(settings.pointsToWin) }}{{ '☆'.repeat(3 - settings.pointsToWin) }}</span>
+        <div class="field-group">
+          <label class="field-label"><PixelIcon name="star" :size="16" /> Очков для победы</label>
+          <div class="stars-row">
+            <button
+              v-for="n in 3" :key="n"
+              class="star-btn"
+              :class="{ active: n <= settings.pointsToWin }"
+              @click="settings.pointsToWin = n"
+            >
+              {{ n <= settings.pointsToWin ? '★' : '☆' }}
+            </button>
+            <span class="star-label">{{ settings.pointsToWin }} {{ settings.pointsToWin === 1 ? 'очко' : 'очка' }}</span>
           </div>
         </div>
 
-        <div class="term-blank" />
-        <div class="term-sep" />
+        <hr class="win-sep" />
 
         <!-- Summary -->
-        <div class="term-summary">
-          <div class="term-sum-row">
-            <span class="tc-dim">&nbsp;&nbsp;Название&nbsp;&nbsp;&nbsp;</span>
-            <span class="tc-dim">│</span>
-            <span class="tc-white">&nbsp;{{ lobbyName || 'Новая игра' }}</span>
+        <div class="summary-box">
+          <div class="summary-title">Итог:</div>
+          <div class="summary-row">
+            <span class="summary-key">Лобби</span>
+            <span class="summary-val">{{ lobbyName || 'Новая игра' }}</span>
           </div>
-          <div class="term-sum-row">
-            <span class="tc-dim">&nbsp;&nbsp;Игроков&nbsp;&nbsp;&nbsp;&nbsp;</span>
-            <span class="tc-dim">│</span>
-            <span class="tc-ok">&nbsp;до {{ settings.maxPlayers }}</span>
+          <div class="summary-row">
+            <span class="summary-key">Игроков</span>
+            <span class="summary-val">до {{ settings.maxPlayers }}</span>
           </div>
-          <div class="term-sum-row">
-            <span class="tc-dim">&nbsp;&nbsp;Победа при&nbsp;</span>
-            <span class="tc-dim">│</span>
-            <span class="tc-ok">&nbsp;{{ settings.pointsToWin }} очк.</span>
+          <div class="summary-row">
+            <span class="summary-key">Победа</span>
+            <span class="summary-val">{{ settings.pointsToWin }} {{ settings.pointsToWin === 1 ? 'очко' : 'очка' }}</span>
           </div>
         </div>
 
-        <div class="term-sep" />
+        <p v-if="error" class="error-msg" style="margin-top:6px">{{ error }}</p>
 
-        <!-- Buttons -->
-        <div class="term-actions">
-          <button class="term-btn" @click="router.push('/')">
-            [ ← НАЗАД ]
+        <!-- Actions -->
+        <div class="create-actions">
+          <button class="xp-btn" @click="router.push('/')">← Назад</button>
+          <button class="xp-btn create-btn" :disabled="loading" @click="create">
+            <PixelIcon v-if="loading" name="hourglass" :size="14" />
+            <PixelIcon v-else name="rocket" :size="14" />
+            {{ loading ? 'Создаём...' : 'Создать игру' }}
           </button>
-          <button class="term-btn term-btn-primary" @click="create" :disabled="loading">
-            [ 🎮&nbsp;&nbsp;{{ loading ? 'СОЗДАЁМ...' : 'СОЗДАТЬ ИГРУ' }} ]
-          </button>
-        </div>
-
-        <p v-if="error" class="tc-err">! ОШИБКА: {{ error }}</p>
-
-        <div class="term-blank" />
-        <div class="term-cursor-line">
-          <span class="tc-blue">C:\KEYMEME\create&gt;&nbsp;</span>
-          <span class="term-caret">█</span>
         </div>
 
       </div>
@@ -125,11 +108,11 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import socket from '../socket.js'
 import { gameState } from '../gameState.js'
-import GameBackground from '../components/GameBackground.vue'
+import PixelIcon from '../components/PixelIcon.vue'
 
-const router  = useRouter()
-const loading = ref(false)
-const error   = ref('')
+const router    = useRouter()
+const loading   = ref(false)
+const error     = ref('')
 const lobbyName = ref('Новая игра')
 const settings  = reactive({ maxPlayers: 10, pointsToWin: 3 })
 
@@ -152,170 +135,193 @@ function create() {
 </script>
 
 <style scoped>
-.term-wrap {
+.create-wrap {
   position: absolute;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 20px;
   z-index: 5;
 }
 
-.term-box {
-  width: 580px;
+.create-window {
+  width: 680px;
   max-width: 100%;
-  background: #0c0c0c;
-  border: 1px solid #3a3a3a;
-  box-shadow:
-    0 0 0 1px #111,
-    0 8px 40px rgba(0,0,0,0.8),
-    0 0 60px rgba(80,180,255,0.08);
-  animation: fadeScaleIn 0.25s ease both;
-  font-family: 'Courier New', 'Lucida Console', monospace;
 }
 
-/* Titlebar */
-.term-titlebar {
-  background: #1e1e1e;
-  border-bottom: 1px solid #333;
-  padding: 6px 10px;
+.create-body {
+  background: #d4d0c8;
+  padding: 26px 32px 24px;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  user-select: none;
-}
-.term-path { font-size: 12px; color: #808080; }
-.term-win-btns { display: flex; gap: 2px; }
-.twb {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px; height: 20px;
-  font-size: 11px;
-  color: #808080;
-  cursor: pointer;
-  background: #2d2d2d;
-  border: 1px solid #3a3a3a;
-}
-.twb:hover { background: #3a3a3a; color: #ddd; }
-.twb-x:hover { background: #c42b1c; color: #fff; border-color: #c42b1c; }
-
-/* Body */
-.term-body {
-  padding: 18px 22px 20px;
-  font-size: 14px;
-  line-height: 1.7;
+  flex-direction: column;
+  gap: 20px;
 }
 
-/* Colors */
-.tc-dim   { color: #555; }
-.tc-white { color: #ccc; }
-.tc-blue  { color: #569cd6; }
-.tc-ok    { color: #4ec9b0; }
-.tc-err   { color: #f44747; font-size: 13px; margin-top: 6px; }
-
-.term-blank { height: 0.6em; }
-.term-sep {
-  border: none;
-  border-top: 1px solid #222;
-  margin: 10px 0;
+/* Field group */
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
-
-/* Fields */
-.term-field { display: flex; flex-direction: column; gap: 4px; }
-.term-field-label { display: flex; align-items: baseline; gap: 0; font-size: 14px; }
-.prompt-indent { flex-shrink: 0; }
-
-/* Text input */
-.term-input-row { display: flex; align-items: center; }
-.term-input {
-  background: #0c0c0c;
-  border: none;
-  border-bottom: 1px solid #569cd6;
-  color: #fff;
-  font-family: 'Courier New', monospace;
-  font-size: 14px;
-  padding: 2px 6px;
-  outline: none;
-  caret-color: #ccc;
+.field-label {
+  font-family: Tahoma, sans-serif;
+  font-size: 17px;
+  font-weight: bold;
+  color: #222;
 }
-.term-input::placeholder { color: #383838; }
-.term-input-wide { width: 340px; }
+.field-input {
+  font-size: 16px;
+  padding: 6px 10px;
+}
 
 /* Spinner */
-.term-spinner-row {
+.spinner-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
-.term-spin-btn {
-  background: transparent;
-  border: 1px solid #333;
-  color: #888;
-  font-family: 'Courier New', monospace;
-  font-size: 12px;
-  padding: 2px 6px;
+.spin-btn {
+  background: #d4d0c8;
+  border: 2px solid;
+  border-top-color: #fff;
+  border-left-color: #fff;
+  border-bottom-color: #808080;
+  border-right-color: #808080;
+  width: 42px;
+  height: 42px;
+  font-size: 18px;
   cursor: pointer;
-  transition: border-color 0.1s, color 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
 }
-.term-spin-btn:hover { border-color: #569cd6; color: #ccc; }
-.term-spin-btn:active { background: #1a1a1a; }
-.term-spin-val {
-  font-size: 18px;
+.spin-btn:hover { background: #e0dcd4; }
+.spin-btn:active {
+  border-top-color: #808080;
+  border-left-color: #808080;
+  border-bottom-color: #fff;
+  border-right-color: #fff;
+}
+
+.spin-display {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.spin-value {
+  font-family: Tahoma, sans-serif;
+  font-size: 28px;
   font-weight: bold;
-  min-width: 28px;
+  color: #003399;
+  min-width: 36px;
   text-align: center;
-  letter-spacing: 0.05em;
 }
 .spin-bar {
+  flex: 1;
+  height: 18px;
+  background: white;
+  border: 2px solid;
+  border-top-color: #808080;
+  border-left-color: #808080;
+  border-bottom-color: #fff;
+  border-right-color: #fff;
+  overflow: hidden;
+}
+.spin-fill {
+  height: 100%;
+  background: repeating-linear-gradient(
+    90deg,
+    #0a4ee8 0px, #0a4ee8 8px,
+    #1a6aff 8px, #1a6aff 10px
+  );
+  transition: width 0.15s;
+}
+.spin-hint {
+  font-family: Tahoma, sans-serif;
   font-size: 12px;
-  letter-spacing: 2px;
+  color: #666;
+  white-space: nowrap;
+}
+
+/* Stars */
+.stars-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.star-btn {
+  font-size: 38px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #aaa;
+  padding: 0;
+  line-height: 1;
+  transition: transform 0.1s, color 0.1s;
+}
+.star-btn.active { color: #f4a800; }
+.star-btn:hover  { transform: scale(1.2); }
+.star-label {
+  font-family: Tahoma, sans-serif;
+  font-size: 16px;
+  color: #555;
+  margin-left: 8px;
 }
 
 /* Summary */
-.term-summary { display: flex; flex-direction: column; gap: 2px; font-size: 13px; }
-.term-sum-row { display: flex; align-items: baseline; }
+.summary-box {
+  background: white;
+  border: 2px solid;
+  border-top-color: #808080;
+  border-left-color: #808080;
+  border-bottom-color: #fff;
+  border-right-color: #fff;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.summary-title {
+  font-family: Tahoma, sans-serif;
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.summary-row {
+  display: flex;
+  gap: 12px;
+  font-family: Tahoma, sans-serif;
+  font-size: 15px;
+}
+.summary-key { color: #666; min-width: 90px; }
+.summary-val { color: #003399; font-weight: bold; }
 
 /* Actions */
-.term-actions {
+.create-actions {
   display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: flex-end;
 }
-.term-btn {
-  background: transparent;
-  border: 1px solid #3a3a3a;
-  color: #888;
-  font-family: 'Courier New', monospace;
-  font-size: 14px;
-  padding: 9px 16px;
-  cursor: pointer;
-  letter-spacing: 0.03em;
-  transition: background 0.1s, border-color 0.1s, color 0.1s;
-}
-.term-btn:hover { background: #1a1a1a; border-color: #569cd6; color: #fff; }
-.term-btn-primary {
-  border-color: #4ec9b0;
-  color: #4ec9b0;
+.create-btn {
   flex: 1;
+  font-size: 17px;
+  font-weight: bold;
+  padding: 12px 20px;
+  color: #003399;
 }
-.term-btn-primary:hover { background: #0a2020; border-color: #4ec9b0; color: #7fffdf; }
-.term-btn:disabled { opacity: 0.35; cursor: not-allowed; }
-
-/* Cursor */
-.term-cursor-line { display: flex; align-items: baseline; font-size: 14px; }
-.term-caret {
-  color: #ccc;
-  animation: caretBlink 1s step-end infinite;
+.create-btn:not(:disabled):hover {
+  background: #e8f0ff;
 }
-@keyframes caretBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-@media (max-width: 620px) {
-  .term-wrap { padding: 8px; }
-  .term-body { padding: 14px 14px 16px; font-size: 13px; }
-  .term-input-wide { width: 200px; }
-  .term-actions { flex-direction: column; }
+@media (max-width: 520px) {
+  .create-wrap { padding: 8px; }
+  .create-body { padding: 14px 14px 16px; }
+  .create-actions { flex-direction: column; }
+  .create-btn { flex: none; }
 }
 </style>

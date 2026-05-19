@@ -1,76 +1,93 @@
 <template>
-  <GameBackground />
-
-  <div class="term-wrap">
-    <div class="term-box">
+  <div class="home-wrap">
+    <div class="win-window home-window">
 
       <!-- Titlebar -->
-      <div class="term-titlebar">
-        <span class="term-path">C:\KEYMEME\cmd.exe</span>
-        <div class="term-win-btns">
-          <span class="twb">─</span>
-          <span class="twb">□</span>
-          <span class="twb twb-x">✕</span>
+      <div class="win-titlebar">
+        <div class="win-titlebar-left">
+          <span class="win-title-icon"><PixelIcon name="gamepad" :size="14" /></span>
+          <span class="win-title-text">KeyMeme — Добро пожаловать!</span>
+        </div>
+        <div class="win-title-btns">
+          <button class="win-ctrl">─</button>
+          <button class="win-ctrl">□</button>
+          <button class="win-ctrl win-ctrl-close">✕</button>
         </div>
       </div>
 
-      <!-- Body -->
-      <div class="term-body">
+      <div class="home-body">
 
-        <p class="tc-dim">Microsoft(R) Key Meme [Version 1.0.2026]</p>
-        <p class="tc-dim">(c) 2026 Avatar Lab. Все права защищены.</p>
-        <div class="term-blank" />
-
-        <!-- Boot sequence -->
-        <div v-for="(item, i) in bootItems" :key="i" class="term-boot-line">
-          <span class="tc-blue">&gt;&nbsp;</span>
-          <span class="tc-white">{{ item.text }}</span>
-          <span v-if="item.status === 'loading'" class="tc-dim term-blink-dots">...</span>
-          <span v-else-if="item.status === 'ok'"   class="tc-ok">&nbsp;[OK]</span>
-          <span v-else-if="item.status === 'done'" class="tc-ok">&nbsp;✓</span>
+        <!-- Logo area -->
+        <div class="home-logo-row">
+          <div class="home-logo-icon"><PixelIcon name="music" :size="64" color="#003399" /></div>
+          <div>
+            <div class="home-title">KeyMeme</div>
+            <div class="home-subtitle">Угадай ситуацию — выбери звук — победи!</div>
+          </div>
         </div>
 
-        <!-- Buttons -->
+        <hr class="win-sep" />
+
+        <!-- Boot lines -->
+        <div class="boot-lines">
+          <div v-for="(item, i) in bootItems" :key="i" class="boot-line">
+            <span class="boot-bullet">▶</span>
+            <span class="boot-text">{{ item.text }}</span>
+            <span v-if="item.status === 'loading'" class="boot-dots">...</span>
+            <span v-else-if="item.status === 'ok'"   class="boot-ok">✓</span>
+          </div>
+        </div>
+
+        <!-- Main buttons -->
         <template v-if="showButtons">
-          <div class="term-blank" />
-          <div class="term-btns">
-            <button class="term-btn" @click="router.push('/create')">
-              [ 🎮&nbsp;&nbsp;СОЗДАТЬ&nbsp;ИГРУ ]
+          <hr class="win-sep" />
+          <div class="home-btns">
+            <button class="home-action-btn home-btn-primary" @click="router.push('/create')">
+              <span class="btn-icon"><PixelIcon name="gamepad" :size="44" color="#003399" /></span>
+              <div class="btn-text">
+                <span class="btn-main">Создать игру</span>
+                <span class="btn-sub">Настроить и запустить лобби</span>
+              </div>
             </button>
-            <button class="term-btn" @click="toggleJoin">
-              [ 🔗&nbsp;&nbsp;ВОЙТИ&nbsp;ПО&nbsp;ССЫЛКЕ ]
+            <button class="home-action-btn" @click="toggleJoin">
+              <span class="btn-icon"><PixelIcon name="link" :size="44" color="#003399" /></span>
+              <div class="btn-text">
+                <span class="btn-main">Войти по коду</span>
+                <span class="btn-sub">Введи код от друга</span>
+              </div>
             </button>
           </div>
 
-          <div v-if="showJoin" class="term-join">
-            <div class="term-blank" />
-            <div class="term-input-row">
-              <span class="tc-blue">&gt;&nbsp;</span>
-              <span class="tc-white">Код лобби:&nbsp;</span>
-              <input
-                class="term-input"
-                v-model="joinCode"
-                @keydown.enter="joinByCode"
-                placeholder="________"
-                maxlength="20"
-                autofocus
-              />
-              <button class="term-btn-sm" @click="joinByCode" :disabled="!joinCode.trim()">
-                [ ВОЙТИ ]
-              </button>
+          <!-- Join input -->
+          <transition name="slide">
+            <div v-if="showJoin" class="join-panel">
+              <label class="join-label">Код лобби:</label>
+              <div class="join-row">
+                <input
+                  class="xp-input join-input"
+                  v-model="joinCode"
+                  placeholder="Вставь код сюда..."
+                  maxlength="20"
+                  autofocus
+                  @keydown.enter="joinByCode"
+                />
+                <button class="xp-btn join-go-btn" :disabled="!joinCode.trim()" @click="joinByCode">
+                  Войти →
+                </button>
+              </div>
+              <p v-if="joinError" class="error-msg">{{ joinError }}</p>
             </div>
-            <p v-if="joinError" class="tc-err">! ОШИБКА: {{ joinError }}</p>
-          </div>
+          </transition>
         </template>
 
-        <!-- Cursor line -->
-        <div class="term-blank" />
-        <div class="term-cursor-line">
-          <span class="tc-blue">C:\KEYMEME&gt;&nbsp;</span>
-          <span class="term-caret">█</span>
-        </div>
-
       </div>
+
+      <!-- Status bar -->
+      <div class="home-statusbar">
+        <div class="status-cell">KeyMeme v1.0.2026</div>
+        <div class="status-cell">© 2026 Avatar Lab</div>
+      </div>
+
     </div>
   </div>
 </template>
@@ -78,33 +95,33 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import GameBackground from '../components/GameBackground.vue'
+import PixelIcon from '../components/PixelIcon.vue'
 
-const router   = useRouter()
-const joinCode = ref('')
+const router    = useRouter()
+const joinCode  = ref('')
 const joinError = ref('')
 const showJoin  = ref(false)
 const bootItems = ref([])
 const showButtons = ref(false)
 
 const steps = [
-  { text: 'Инициализация системы',   loadMs: 550 },
-  { text: 'Загрузка звуков (54/54)', loadMs: 380 },
-  { text: 'Проверка соединения',     loadMs: 680 },
-  { text: 'Система готова.',         loadMs: 0,   done: true },
+  { text: 'Инициализация системы',   loadMs: 500 },
+  { text: 'Загрузка звуков (54/54)', loadMs: 350 },
+  { text: 'Проверка соединения',     loadMs: 600 },
+  { text: 'Система готова.',         loadMs: 0, done: true },
 ]
 
 onMounted(async () => {
   for (const step of steps) {
-    bootItems.value.push({ text: step.text, status: step.done ? 'done' : 'loading' })
+    bootItems.value.push({ text: step.text, status: step.done ? 'ok' : 'loading' })
     const idx = bootItems.value.length - 1
     if (step.loadMs) {
       await new Promise(r => setTimeout(r, step.loadMs))
       bootItems.value[idx] = { ...bootItems.value[idx], status: 'ok' }
-      await new Promise(r => setTimeout(r, 80))
+      await new Promise(r => setTimeout(r, 60))
     }
   }
-  await new Promise(r => setTimeout(r, 280))
+  await new Promise(r => setTimeout(r, 200))
   showButtons.value = true
 })
 
@@ -122,177 +139,186 @@ function joinByCode() {
 </script>
 
 <style scoped>
-/* ── Layout ── */
-.term-wrap {
+.home-wrap {
   position: absolute;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 20px;
   z-index: 5;
 }
 
-/* ── Terminal window ── */
-.term-box {
-  width: 620px;
+.home-window {
+  width: 780px;
   max-width: 100%;
-  background: #0c0c0c;
-  border: 1px solid #3a3a3a;
-  box-shadow:
-    0 0 0 1px #111,
-    0 8px 40px rgba(0,0,0,0.8),
-    0 0 60px rgba(80,180,255,0.08);
-  animation: fadeScaleIn 0.25s ease both;
-  font-family: 'Courier New', 'Lucida Console', monospace;
 }
 
-/* ── Titlebar ── */
-.term-titlebar {
-  background: #1e1e1e;
-  border-bottom: 1px solid #333;
-  padding: 6px 10px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  user-select: none;
-}
-.term-path {
-  font-family: 'Courier New', monospace;
-  font-size: 12px;
-  color: #808080;
-}
-.term-win-btns {
-  display: flex;
-  gap: 2px;
-}
-.twb {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 20px;
-  font-size: 11px;
-  color: #808080;
-  cursor: pointer;
-  background: #2d2d2d;
-  border: 1px solid #3a3a3a;
-}
-.twb:hover { background: #3a3a3a; color: #ddd; }
-.twb-x:hover { background: #c42b1c; color: #fff; border-color: #c42b1c; }
-
-/* ── Body ── */
-.term-body {
-  padding: 18px 22px 20px;
-  font-size: 14px;
-  line-height: 1.7;
-}
-
-/* ── Colors ── */
-.tc-dim   { color: #636363; }
-.tc-white { color: #cccccc; }
-.tc-blue  { color: #569cd6; }
-.tc-ok    { color: #4ec9b0; }
-.tc-err   { color: #f44747; font-size: 13px; margin-top: 4px; }
-
-.term-blank { height: 0.8em; }
-
-/* ── Boot lines ── */
-.term-boot-line {
-  display: flex;
-  align-items: baseline;
-  gap: 0;
-  font-size: 14px;
-}
-.term-blink-dots { animation: blinkDots 1s steps(3, end) infinite; }
-@keyframes blinkDots {
-  0%   { opacity: 0; }
-  33%  { opacity: 0.4; }
-  66%  { opacity: 0.8; }
-  100% { opacity: 1; }
-}
-
-/* ── Buttons ── */
-.term-btns {
+.home-body {
+  padding: 26px 32px 20px;
+  background: #d4d0c8;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-}
-.term-btn {
-  background: transparent;
-  border: 1px solid #3a3a3a;
-  color: #cccccc;
-  font-family: 'Courier New', monospace;
-  font-size: 15px;
-  padding: 10px 18px;
-  cursor: pointer;
-  text-align: left;
-  letter-spacing: 0.05em;
-  transition: background 0.1s, border-color 0.1s, color 0.1s;
-}
-.term-btn:hover {
-  background: #1a1a1a;
-  border-color: #569cd6;
-  color: #ffffff;
-}
-.term-btn:active {
-  background: #142030;
+  gap: 18px;
 }
 
-.term-btn-sm {
-  background: transparent;
-  border: 1px solid #3a3a3a;
-  color: #cccccc;
-  font-family: 'Courier New', monospace;
-  font-size: 13px;
-  padding: 3px 10px;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background 0.1s, border-color 0.1s;
-}
-.term-btn-sm:hover:not(:disabled) { background: #1a1a1a; border-color: #569cd6; color: #fff; }
-.term-btn-sm:disabled { opacity: 0.35; cursor: not-allowed; }
-
-/* ── Join input ── */
-.term-join { }
-.term-input-row {
+/* Logo row */
+.home-logo-row {
   display: flex;
   align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
+  gap: 18px;
 }
-.term-input {
-  background: #0c0c0c;
-  border: none;
-  border-bottom: 1px solid #569cd6;
-  color: #ffffff;
+.home-logo-icon {
+  font-size: 64px;
+  line-height: 1;
+  filter: drop-shadow(2px 2px 0 rgba(0,0,0,0.2));
+}
+.home-title {
+  font-family: 'Tahoma', sans-serif;
+  font-size: 36px;
+  font-weight: bold;
+  color: #003399;
+  text-shadow: 1px 1px 0 #fff;
+  letter-spacing: 1px;
+}
+.home-subtitle {
+  font-family: Tahoma, sans-serif;
+  font-size: 16px;
+  color: #444;
+  margin-top: 4px;
+}
+
+/* Boot lines */
+.boot-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: white;
+  border-top: 2px solid #808080;
+  border-left: 2px solid #808080;
+  border-bottom: 2px solid #fff;
+  border-right: 2px solid #fff;
+  padding: 10px 16px;
+}
+.boot-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-family: 'Courier New', monospace;
   font-size: 14px;
-  padding: 2px 6px;
-  outline: none;
-  width: 140px;
-  letter-spacing: 0.1em;
+  color: #333;
 }
-.term-input::placeholder { color: #3a3a3a; }
+.boot-bullet { color: #0055cc; font-size: 12px; }
+.boot-text   { flex: 1; }
+.boot-ok     { color: #008000; font-weight: bold; }
+.boot-dots   { color: #888; animation: dots 1s steps(3) infinite; }
+@keyframes dots { 0% { opacity: 0.3 } 100% { opacity: 1 } }
 
-/* ── Cursor ── */
-.term-cursor-line {
+/* Action buttons */
+.home-btns {
   display: flex;
-  align-items: baseline;
-  font-size: 14px;
-}
-.term-caret {
-  color: #cccccc;
-  animation: caretBlink 1s step-end infinite;
-}
-@keyframes caretBlink {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0; }
+  flex-direction: column;
+  gap: 10px;
 }
 
-@media (max-width: 660px) {
-  .term-wrap { padding: 8px; }
-  .term-body { padding: 14px 14px 16px; font-size: 13px; }
-  .term-btn  { font-size: 13px; }
+.home-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: #d4d0c8;
+  border: 2px solid;
+  border-top-color: #fff;
+  border-left-color: #fff;
+  border-bottom-color: #808080;
+  border-right-color: #808080;
+  padding: 16px 22px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: background 0.08s;
+  font-family: Tahoma, sans-serif;
+}
+.home-action-btn:hover {
+  background: #e8e4dc;
+}
+.home-action-btn:active {
+  border-top-color: #808080;
+  border-left-color: #808080;
+  border-bottom-color: #fff;
+  border-right-color: #fff;
+  background: #c8c4bc;
+}
+.home-btn-primary {
+  border-top-color: #fff;
+  border-left-color: #fff;
+  border-bottom-color: #808080;
+  border-right-color: #808080;
+  outline: 2px solid #0055cc;
+  outline-offset: -4px;
+}
+
+.btn-icon { font-size: 44px; flex-shrink: 0; line-height: 1; }
+.btn-text  { display: flex; flex-direction: column; gap: 3px; }
+.btn-main  { font-size: 18px; font-weight: bold; color: #000; }
+.btn-sub   { font-size: 13px; color: #555; }
+
+/* Join panel */
+.join-panel {
+  background: #d4d0c8;
+  border: 2px solid;
+  border-top-color: #808080;
+  border-left-color: #808080;
+  border-bottom-color: #fff;
+  border-right-color: #fff;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.join-label {
+  font-family: Tahoma, sans-serif;
+  font-size: 15px;
+  color: #222;
+  font-weight: bold;
+}
+.join-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.join-input    { flex: 1; font-size: 16px; padding: 6px 10px; }
+.join-go-btn   { white-space: nowrap; min-width: 100px; font-size: 15px; padding: 6px 16px; }
+
+/* Status bar */
+.home-statusbar {
+  display: flex;
+  background: #d4d0c8;
+  border-top: 1px solid #808080;
+  padding: 3px 6px;
+  gap: 4px;
+}
+.status-cell {
+  font-family: Tahoma, sans-serif;
+  font-size: 11px;
+  color: #444;
+  border: 2px solid;
+  border-top-color: #808080;
+  border-left-color: #808080;
+  border-bottom-color: #fff;
+  border-right-color: #fff;
+  padding: 1px 8px;
+  flex: 1;
+  text-align: center;
+}
+
+/* Slide transition */
+.slide-enter-active, .slide-leave-active { transition: all 0.2s ease; }
+.slide-enter-from, .slide-leave-to { opacity: 0; transform: translateY(-6px); }
+
+@media (max-width: 600px) {
+  .home-wrap   { padding: 8px; }
+  .home-title  { font-size: 22px; }
+  .btn-icon    { font-size: 24px; }
+  .home-logo-icon { font-size: 36px; }
 }
 </style>
