@@ -1,23 +1,17 @@
 <template>
   <Teleport to="body">
     <div class="dlg-overlay" @mousedown.self="$emit('cancel')">
-      <div class="dlg-window">
-        <!-- Titlebar -->
-        <div class="dlg-titlebar">
-          <div class="dlg-title-left">
-            <span>⚠️ Предупреждение</span>
-          </div>
-          <button class="win-ctrl win-ctrl-close" @click="$emit('cancel')">&#x2715;</button>
+      <div class="dlg-box">
+        <div class="dlg-icon-wrap">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <path d="M12 9v4M12 17h.01"/>
+          </svg>
         </div>
-        <!-- Body -->
-        <div class="dlg-body">
-          <div class="dlg-icon">⚠️</div>
-          <div class="dlg-msg">{{ message }}</div>
-        </div>
-        <hr class="win-sep" style="margin:0 10px" />
+        <p class="dlg-msg">{{ message }}</p>
         <div class="dlg-btns">
-          <button class="win-btn" style="min-width:80px" @click="$emit('confirm')">ОК</button>
-          <button class="win-btn" style="min-width:80px" @click="$emit('cancel')">Отмена</button>
+          <button class="btn btn-danger" @click="$emit('confirm')">Подтвердить</button>
+          <button class="btn btn-ghost" @click="$emit('cancel')">Отмена</button>
         </div>
       </div>
     </div>
@@ -31,67 +25,42 @@ defineEmits(['confirm', 'cancel'])
 
 <style scoped>
 .dlg-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-}
-
-.dlg-window {
-  background: var(--win-bg);
-  border: 2px solid;
-  border-top-color: var(--win-light);
-  border-left-color: var(--win-light);
-  border-bottom-color: var(--win-dark);
-  border-right-color: var(--win-dark);
-  width: 340px;
-  animation: fadeScaleIn 0.15s ease both;
-}
-
-.dlg-titlebar {
-  background: linear-gradient(90deg, var(--win-title-from), var(--win-title-to));
-  color: white;
-  padding: 4px 6px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 13px;
-  font-family: 'Tahoma', sans-serif;
-  user-select: none;
-}
-.dlg-title-left { display: flex; align-items: center; gap: 5px; }
-
-.win-ctrl {
-  width: 18px; height: 16px;
-  background: var(--win-bg);
-  border: 2px solid;
-  border-top-color: var(--win-light);
-  border-left-color: var(--win-light);
-  border-bottom-color: var(--win-dark);
-  border-right-color: var(--win-dark);
-  font-size: 9px; cursor: pointer; padding: 0;
+  position: fixed; inset: 0;
+  background: rgba(15,23,42,.5);
   display: flex; align-items: center; justify-content: center;
-  color: var(--text);
+  z-index: 9999;
+  backdrop-filter: blur(4px);
 }
-.win-ctrl:active { border-color: var(--win-dark) var(--win-light) var(--win-light) var(--win-dark); }
-.win-ctrl-close:hover { background: #cc0000; color: white; }
-
-.dlg-body {
+.dlg-box {
+  background: var(--c-surface);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--c-border);
+  padding: 28px 28px 24px;
+  width: 340px;
+  max-width: calc(100vw - 32px);
   display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  padding: 16px;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  animation: fadeScaleIn .18s ease both;
+  text-align: center;
 }
-.dlg-icon { font-size: 32px; flex-shrink: 0; line-height: 1; }
-.dlg-msg { font-size: 13px; line-height: 1.5; padding-top: 4px; }
-
+.dlg-icon-wrap {
+  width: 56px; height: 56px;
+  background: var(--c-warning-bg);
+  border-radius: var(--r-full);
+  display: flex; align-items: center; justify-content: center;
+}
+.dlg-msg {
+  font-size: 15px;
+  color: var(--c-text);
+  line-height: 1.5;
+}
 .dlg-btns {
   display: flex;
-  justify-content: center;
   gap: 10px;
-  padding: 10px 16px 14px;
+  width: 100%;
 }
+.dlg-btns .btn { flex: 1; }
 </style>

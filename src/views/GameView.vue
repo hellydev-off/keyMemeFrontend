@@ -2,75 +2,81 @@
   <!-- Confirm leave dialog -->
   <Teleport to="body">
     <div v-if="showConfirm" class="overlay" @mousedown.self="showConfirm = false">
-      <div class="win-window dlg-win">
-        <div class="win-titlebar">
-          <div class="win-titlebar-left">
-            <span class="win-title-icon"><PixelIcon name="warning" :size="14" /></span>
-            <span class="win-title-text">Выход из игры</span>
-          </div>
-          <div class="win-title-btns">
-            <button class="win-ctrl win-ctrl-close" @click="showConfirm = false">✕</button>
-          </div>
+      <div class="dlg-box">
+        <div class="dlg-icon-wrap">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <path d="M12 9v4M12 17h.01"/>
+          </svg>
         </div>
-        <div class="dlg-body">
-          <p class="dlg-msg">Выйти из игры? Прогресс раунда потеряется.</p>
-          <div class="dlg-btns">
-            <button class="xp-btn xp-btn-danger" @click="confirmLeave">Выйти</button>
-            <button class="xp-btn" @click="showConfirm = false">Отмена</button>
-          </div>
+        <p class="dlg-msg">Выйти из игры? Прогресс раунда потеряется.</p>
+        <div class="dlg-btns">
+          <button class="btn btn-danger" @click="confirmLeave">Выйти</button>
+          <button class="btn btn-ghost" @click="showConfirm = false">Отмена</button>
         </div>
       </div>
     </div>
   </Teleport>
 
   <div class="game-wrap">
-    <div class="win-window game-window">
+    <div class="game-card">
 
-      <!-- ══ Titlebar ══ -->
-      <div class="win-titlebar">
-        <div class="win-titlebar-left">
-          <span class="win-title-icon"><PixelIcon name="gamepad" :size="14" /></span>
-          <span class="win-title-text">KeyMeme — {{ phaseLabel }}</span>
-          <span v-if="isHost" class="host-badge">
-            <PixelIcon name="crown" :size="11" color="#f4a800" /> Стример
+      <!-- ══ Header ══ -->
+      <div class="game-header">
+        <div class="game-header-left">
+          <div class="game-title-icon">
+            <PixelIcon name="gamepad" :size="16" color="var(--c-primary)" />
+          </div>
+          <span class="game-title">{{ phaseLabel }}</span>
+          <span v-if="isHost" class="host-chip">
+            <PixelIcon name="crown" :size="11" color="#d97706" /> Стример
           </span>
-          <span v-if="errorMsg" class="error-badge">! {{ errorMsg }}</span>
+          <span v-if="errorMsg" class="error-chip">{{ errorMsg }}</span>
         </div>
-        <div class="win-title-btns">
-          <button class="win-ctrl">─</button>
-          <button class="win-ctrl">□</button>
-          <button class="win-ctrl win-ctrl-close" @click="showConfirm = true">✕</button>
-        </div>
+        <button class="close-btn" @click="showConfirm = true" title="Выйти">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
       </div>
 
-      <!-- ══ Phase progress bar ══ -->
+      <!-- ══ Phase stepper ══ -->
       <div class="phase-bar">
         <div v-for="step in phaseSteps" :key="step.key"
              class="phase-step"
              :class="{ 'step-active': step.active, 'step-done': step.done }">
-          <span class="step-num">{{ step.n }}</span>
+          <div class="step-bubble">
+            <svg v-if="step.done" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>
+            <span v-else>{{ step.n }}</span>
+          </div>
           <span class="step-label">{{ step.label }}</span>
         </div>
       </div>
 
-      <!-- ══ Main body ══ -->
+      <!-- ══ Phase content ══ -->
       <div class="game-body">
 
-        <!-- ── SITUATION: loading ── -->
+        <!-- ── SITUATION: loading / show hand ── -->
         <div v-if="phase === 'situation'" class="phase-content">
-          <div class="loading-box">
-            <PixelIcon name="hourglass" :size="28" color="#003399" />
-            <span class="loading-text">Генерируется ситуация<span class="blink-dots">...</span></span>
+          <div class="info-banner info-loading">
+            <div class="loading-spin">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--c-primary)" stroke-width="2.5" stroke-linecap="round" style="animation:spin .7s linear infinite">
+                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+              </svg>
+            </div>
+            <span>Генерируется ситуация...</span>
           </div>
-          <hr class="win-sep" />
-          <div class="section-lbl"><PixelIcon name="music" :size="14" /> Твои карты в этом раунде:</div>
+
+          <div class="section-label">
+            <PixelIcon name="music" :size="15" color="var(--c-primary)" />
+            Твои карты в этом раунде:
+          </div>
           <div class="hand-grid">
             <div v-for="s in myHand" :key="s.id" class="sound-card sound-preview">
               <div class="card-name">{{ s.name }}</div>
-              <button class="xp-btn card-btn-sm preview-btn"
-                      :class="{ 'preview-btn--playing': previewingId === s.id && previewPlaying }"
+              <button class="preview-btn"
+                      :class="{ playing: previewingId === s.id && previewPlaying }"
                       @click.stop="togglePreview(s)">
-                <PixelIcon :name="previewingId === s.id && previewPlaying ? 'pause' : 'speaker'" :size="12" />
+                <PixelIcon :name="previewingId === s.id && previewPlaying ? 'pause' : 'speaker'" :size="13"
+                           :color="previewingId === s.id && previewPlaying ? 'var(--c-primary)' : 'currentColor'" />
                 {{ previewingId === s.id && previewPlaying ? 'Пауза' : previewingId === s.id ? 'Продолжить' : 'Слушать' }}
               </button>
             </div>
@@ -80,264 +86,294 @@
         <!-- ── CHOOSING ── -->
         <div v-else-if="phase === 'choosing'" class="phase-content">
           <div class="situation-panel">
-            <div class="sit-meta">Ситуация:</div>
+            <div class="sit-label">Ситуация</div>
             <div class="sit-text">{{ currentSituation?.text }}</div>
           </div>
 
-          <hr class="win-sep" />
-
           <div v-if="!submitted">
-            <div class="section-lbl"><PixelIcon name="music" :size="14" /> Выбери реакцию:</div>
+            <div class="section-label">
+              <PixelIcon name="music" :size="15" color="var(--c-primary)" />
+              Выбери реакцию:
+            </div>
             <div class="hand-grid">
               <div v-for="s in myHand" :key="s.id"
                    class="sound-card"
                    :class="{ 'card-selected': selectedSoundId === s.id }"
                    @click="highlightSound(s.id)">
                 <div class="card-name">{{ s.name }}</div>
-                <div class="card-actions">
-                  <button class="xp-btn card-btn-sm preview-btn"
-                          :class="{ 'preview-btn--playing': previewingId === s.id && previewPlaying }"
+                <div class="card-foot">
+                  <button class="preview-btn"
+                          :class="{ playing: previewingId === s.id && previewPlaying }"
                           @click.stop="togglePreview(s)">
-                    <PixelIcon :name="previewingId === s.id && previewPlaying ? 'pause' : 'speaker'" :size="12" />
-                    {{ previewingId === s.id && previewPlaying ? 'Пауза' : previewingId === s.id ? '▶' : '▶' }}
+                    <PixelIcon :name="previewingId === s.id && previewPlaying ? 'pause' : 'speaker'" :size="13" />
+                    {{ previewingId === s.id && previewPlaying ? 'Пауза' : '▶' }}
                   </button>
-                  <span v-if="selectedSoundId === s.id" class="card-chosen-tag">
-                    <PixelIcon name="check" :size="11" color="#008000" /> Выбрано
+                  <span v-if="selectedSoundId === s.id" class="chosen-tag">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--c-success)" stroke-width="2.5" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>
+                    Выбрано
                   </span>
                 </div>
               </div>
             </div>
 
             <div class="confirm-row">
-              <button class="xp-btn confirm-btn"
+              <button class="btn btn-primary confirm-btn"
                       :disabled="!selectedSoundId"
                       @click="submitSound">
-                <PixelIcon name="check" :size="14" /> Подтвердить выбор
+                <PixelIcon name="check" :size="15" color="white" /> Подтвердить выбор
               </button>
             </div>
           </div>
 
           <div v-else class="ok-banner">
-            <PixelIcon name="check" :size="20" color="#008000" />
-            <span>Ответ отправлен! Ждём остальных...</span>
+            <div class="ok-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--c-success)" stroke-width="2.5" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>
+            </div>
+            <div>
+              <div class="ok-title">Ответ отправлен!</div>
+              <div class="ok-sub">Ждём остальных игроков...</div>
+            </div>
           </div>
 
-          <hr class="win-sep" />
-
           <div class="progress-row">
-            <span class="progress-lbl">Ответили: <strong>{{ submitCount }}</strong> из <strong>{{ totalPlayers }}</strong></span>
-            <div class="progress-bar-wrap">
-              <div class="progress-bar-fill"
-                   :style="{ width: totalPlayers > 0 ? (submitCount / totalPlayers * 100) + '%' : '0%' }" />
+            <span class="progress-label">Ответили: <strong>{{ submitCount }}</strong> из <strong>{{ totalPlayers }}</strong></span>
+            <div class="mini-progress">
+              <div class="mini-fill" :style="{ width: totalPlayers > 0 ? (submitCount / totalPlayers * 100) + '%' : '0%' }" />
             </div>
           </div>
         </div>
 
         <!-- ── PLAYBACK ── -->
         <div v-else-if="phase === 'playback'" class="phase-content">
-
           <div class="situation-panel situation-sm">
-            <div class="sit-meta">Ситуация:</div>
+            <div class="sit-label">Ситуация</div>
             <div class="sit-text">{{ currentSituation?.text }}</div>
           </div>
 
-          <hr class="win-sep" />
-
-          <!-- Situation TTS playing -->
-          <div v-if="ttsPlaying" class="info-banner">
-            <PixelIcon name="speaker" :size="22" color="#003399" />
-            <span>Озвучивается ситуация<span class="blink-dots">...</span></span>
+          <div v-if="ttsPlaying" class="info-banner info-blue">
+            <PixelIcon name="speaker" :size="20" color="var(--c-primary)" />
+            <span>Озвучивается ситуация...</span>
           </div>
 
-          <!-- Host: press to start -->
           <div v-else-if="isHost && !playbackStarted" class="start-area">
-            <button class="xp-btn start-btn" @click="startPlayback">
-              <PixelIcon name="rocket" :size="16" /> Начать воспроизведение
+            <button class="btn btn-primary start-pb-btn" @click="startPlayback">
+              <PixelIcon name="rocket" :size="16" color="white" /> Начать воспроизведение
             </button>
           </div>
 
-          <!-- Active playback (host after start, non-host immediately) -->
           <template v-else-if="activePlaybackIndex >= 0">
-
-            <!-- Big "now playing" card -->
-            <div class="now-playing-card" :class="{ 'np-active': isPlaying }">
-              <div class="np-status-row">
-                <PixelIcon :name="isPlaying ? 'speaker' : 'check'" :size="14"
-                           :color="isPlaying ? '#003399' : '#008000'" />
+            <!-- Now playing card -->
+            <div class="now-playing" :class="{ 'np-live': isPlaying }">
+              <div class="np-header">
+                <div class="np-status-dot" :class="{ 'dot-live': isPlaying, 'dot-done': !isPlaying }" />
                 <span class="np-status-text">{{ isPlaying ? 'Играет' : 'Готово' }}</span>
               </div>
               <div class="np-player">{{ currentPlayingItem?.playerNick }}</div>
               <div class="np-sound">{{ currentPlayingItem?.sound?.name }}</div>
-              <div v-if="isPlaying" class="eq-wrap">
-                <div v-for="i in 10" :key="i" class="eq-bar"
-                     :style="{ animationDelay: (i * 0.055) + 's', animationDuration: (0.38 + i * 0.042) + 's' }" />
+              <div v-if="isPlaying" class="equalizer">
+                <div v-for="i in 8" :key="i" class="eq-bar"
+                     :style="{ animationDelay: (i * .07) + 's', animationDuration: (.4 + i * .04) + 's' }" />
               </div>
             </div>
 
-            <!-- Host controls (shown after sound finishes) -->
-            <div v-if="isHost && !isPlaying" class="host-btns">
-              <button class="xp-btn btn-replay" @click="replayCurrentSound">
-                <PixelIcon name="speaker" :size="13" /> Переслушать
+            <!-- Host controls -->
+            <div v-if="isHost && !isPlaying" class="host-controls">
+              <button class="btn btn-ghost" @click="replayCurrentSound">
+                <PixelIcon name="speaker" :size="14" color="var(--c-text-muted)" /> Переслушать
               </button>
-              <button v-if="hasNextPlayer" class="xp-btn btn-next" @click="nextPlayer">
+              <button v-if="hasNextPlayer" class="btn btn-primary flex-1" @click="nextPlayer">
                 Следующий →
               </button>
-              <button v-else class="xp-btn btn-vote" @click="startVoting">
-                <PixelIcon name="star" :size="14" /> Начать голосование
+              <button v-else class="btn btn-success flex-1" @click="startVoting">
+                <PixelIcon name="star" :size="14" color="white" /> Начать голосование
               </button>
             </div>
-
             <div v-else-if="!isHost" class="streamer-hint">
-              <PixelIcon name="monitor" :size="13" /> Стример управляет воспроизведением
+              <PixelIcon name="monitor" :size="14" color="var(--c-text-light)" /> Стример управляет воспроизведением
             </div>
 
-            <hr class="win-sep" />
-
-            <!-- Mini player cards row -->
-            <div class="section-lbl"><PixelIcon name="people" :size="14" /> Все участники:</div>
+            <!-- Mini player cards -->
+            <div class="section-label">
+              <PixelIcon name="people" :size="15" color="var(--c-primary)" /> Все участники:
+            </div>
             <div class="mini-grid">
               <div v-for="(item, idx) in orderedSounds" :key="idx"
                    class="mini-card"
                    :class="{
-                     'mini-active': idx === activePlaybackIndex,
-                     'mini-done':   idx < activePlaybackIndex,
-                     'mini-wait':   idx > activePlaybackIndex
+                     'mc-active': idx === activePlaybackIndex,
+                     'mc-done':   idx < activePlaybackIndex,
+                     'mc-wait':   idx > activePlaybackIndex
                    }">
-                <div class="mini-icon">
-                  <PixelIcon v-if="idx < activePlaybackIndex" name="check" :size="11" color="#008000" />
-                  <PixelIcon v-else-if="idx === activePlaybackIndex" name="speaker" :size="11" color="#003399" />
-                  <span v-else class="mini-num">{{ idx + 1 }}</span>
+                <div class="mc-indicator">
+                  <svg v-if="idx < activePlaybackIndex" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--c-success)" stroke-width="3" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>
+                  <div v-else-if="idx === activePlaybackIndex" class="mc-dot-live" />
+                  <span v-else class="mc-num">{{ idx + 1 }}</span>
                 </div>
-                <div class="mini-nick">{{ item.playerNick }}</div>
-                <div class="mini-snd">{{ item.sound?.name || '???' }}</div>
+                <div class="mc-nick">{{ item.playerNick }}</div>
+                <div class="mc-snd">{{ item.sound?.name || '???' }}</div>
               </div>
             </div>
           </template>
-
         </div>
 
         <!-- ── VOTING ── -->
         <div v-else-if="phase === 'voting'" class="phase-content">
           <div class="situation-panel situation-sm">
-            <div class="sit-meta">Ситуация:</div>
+            <div class="sit-label">Ситуация</div>
             <div class="sit-text">{{ currentSituation?.text }}</div>
           </div>
 
-          <hr class="win-sep" />
-
           <div v-if="!voted">
-            <div class="section-lbl"><PixelIcon name="star" :size="14" /> Выбери лучший звук:</div>
+            <div class="section-label">
+              <PixelIcon name="star" :size="15" color="var(--c-primary)" /> Выбери лучший звук:
+            </div>
             <div class="vote-list">
               <div v-for="(item, idx) in orderedSounds" :key="idx"
                    class="vote-row"
                    :class="{
                      'vote-mine':     isMySound(item),
                      'vote-selected': selectedVoteIndex === idx && !isMySound(item)
-                   }">
-                <span class="vote-num">{{ idx + 1 }}.</span>
+                   }"
+                   @click="!isMySound(item) && selectVote(idx)">
+                <span class="vote-num">{{ idx + 1 }}</span>
                 <span class="vote-name">{{ item.sound?.name || '???' }}</span>
                 <span v-if="isMySound(item)" class="vote-mine-tag">мой звук</span>
-                <button v-else class="xp-btn vote-pick-btn"
-                        :class="{ 'pick-chosen': selectedVoteIndex === idx }"
-                        @click="selectVote(idx)">
+                <button v-else class="vote-pick-btn"
+                        :class="{ 'pick-active': selectedVoteIndex === idx }"
+                        @click.stop="selectVote(idx)">
                   {{ selectedVoteIndex === idx ? '✓ Выбран' : 'Выбрать' }}
                 </button>
               </div>
             </div>
-            <hr class="win-sep" />
-            <button class="xp-btn confirm-btn"
-                    :disabled="selectedVoteIndex === null"
-                    @click="castVote">
-              <PixelIcon name="check" :size="14" /> Подтвердить голос
-            </button>
+            <div class="confirm-row">
+              <button class="btn btn-primary confirm-btn"
+                      :disabled="selectedVoteIndex === null"
+                      @click="castVote">
+                <PixelIcon name="check" :size="15" color="white" /> Подтвердить голос
+              </button>
+            </div>
           </div>
 
           <div v-else class="ok-banner">
-            <PixelIcon name="check" :size="20" color="#008000" />
-            <span>Голос принят! Проголосовало: {{ voteCount }} / {{ totalPlayers }}</span>
+            <div class="ok-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--c-success)" stroke-width="2.5" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>
+            </div>
+            <div>
+              <div class="ok-title">Голос принят!</div>
+              <div class="ok-sub">Проголосовало: {{ voteCount }} / {{ totalPlayers }}</div>
+            </div>
           </div>
         </div>
 
         <!-- ── RESULTS ── -->
         <div v-else-if="phase === 'results'" class="phase-content">
           <div class="results-header">
-            <PixelIcon name="crown" :size="34" :color="roundResult?.winnerId ? '#f4a800' : '#888'" />
+            <PixelIcon name="crown" :size="32" :color="roundResult?.winnerId ? '#f59e0b' : 'var(--c-text-light)'" />
             <span class="results-title">Раунд завершён!</span>
           </div>
 
-          <div v-if="roundResult?.winnerId" class="winner-box">
-            <div class="winner-meta">Победитель раунда:</div>
+          <div v-if="roundResult?.winnerId" class="winner-card">
+            <div class="winner-label">Победитель раунда</div>
             <div class="winner-name">{{ roundResult.winnerNick }}</div>
-            <div class="winner-snd"><PixelIcon name="speaker" :size="12" /> {{ roundResult.sound?.name }}</div>
+            <div class="winner-sound">
+              <PixelIcon name="speaker" :size="13" color="var(--c-warning)" />
+              {{ roundResult.sound?.name }}
+            </div>
           </div>
           <div v-else class="no-winner">Ничья — победителя нет.</div>
 
-          <hr class="win-sep" />
-
-          <div class="section-lbl">Счёт:</div>
+          <div class="section-label">
+            <PixelIcon name="star" :size="15" color="var(--c-primary)" /> Счёт:
+          </div>
           <div class="scores-list">
             <div v-for="(p, i) in sortedScores" :key="p.socketId"
                  class="score-row"
-                 :class="{ 'score-winner': p.socketId === roundResult?.winnerId }">
-              <span class="score-pos">{{ i + 1 }}.</span>
-              <span class="score-nick">{{ p.nickname }}</span>
-              <span class="score-stars">
-                <span v-for="n in settings_pts" :key="n">{{ n <= p.score ? '★' : '☆' }}</span>
+                 :class="{ 'sr-winner': p.socketId === roundResult?.winnerId }">
+              <span class="sr-pos">{{ i + 1 }}</span>
+              <span class="sr-nick">{{ p.nickname }}</span>
+              <span class="sr-stars">
+                <svg v-for="n in settings_pts" :key="n" width="16" height="16" viewBox="0 0 24 24"
+                     :fill="n <= p.score ? '#f59e0b' : 'none'" stroke="#f59e0b" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" style="display:inline-block">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/>
+                </svg>
               </span>
             </div>
           </div>
 
-          <hr class="win-sep" />
-          <button v-if="isHost" class="xp-btn action-btn" @click="requestNextRound">
-            <PixelIcon name="rocket" :size="14" /> Следующий раунд
-          </button>
-          <p v-else class="wait-hint"><PixelIcon name="hourglass" :size="14" /> Ждём хоста...</p>
+          <div class="round-actions">
+            <button v-if="isHost" class="btn btn-primary action-btn" @click="requestNextRound">
+              <PixelIcon name="rocket" :size="15" color="white" /> Следующий раунд
+            </button>
+            <div v-else class="wait-hint">
+              <div style="animation:spin .8s linear infinite;display:flex">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--c-primary)" stroke-width="2.5" stroke-linecap="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+              </div>
+              Ждём хоста...
+            </div>
+          </div>
         </div>
 
         <!-- ── GAMEOVER ── -->
         <div v-else-if="phase === 'gameover'" class="phase-content">
-          <div class="results-header gameover-hdr">
-            <PixelIcon name="crown" :size="46" color="#f4a800" />
-            <span class="results-title gameover-title">Игра завершена!</span>
+          <div class="gameover-header">
+            <div class="trophy-wrap">
+              <PixelIcon name="crown" :size="44" color="#f59e0b" />
+            </div>
+            <div class="gameover-title">Игра завершена!</div>
           </div>
 
-          <div class="winner-box winner-final">
-            <div class="winner-meta">Чемпион:</div>
+          <div class="winner-card winner-final">
+            <div class="winner-label">Чемпион</div>
             <div class="winner-name">{{ gameOver?.winnerNick }}</div>
           </div>
 
-          <hr class="win-sep" />
-
-          <div class="section-lbl">Итоговый счёт:</div>
+          <div class="section-label">
+            <PixelIcon name="star" :size="15" color="var(--c-primary)" /> Итоговый счёт:
+          </div>
           <div class="scores-list">
             <div v-for="(p, i) in sortedGameOver" :key="p.socketId"
                  class="score-row"
-                 :class="{ 'score-winner': p.socketId === gameOver?.winnerId }">
-              <span class="score-pos">{{ i + 1 }}.</span>
-              <span class="score-nick">{{ p.nickname }}</span>
-              <span class="score-stars">{{ '★'.repeat(p.score) }}{{ '☆'.repeat(Math.max(0, settings_pts - p.score)) }}</span>
+                 :class="{ 'sr-winner': p.socketId === gameOver?.winnerId }">
+              <span class="sr-pos">{{ i + 1 }}</span>
+              <span class="sr-nick">{{ p.nickname }}</span>
+              <span class="sr-stars">
+                <svg v-for="n in settings_pts" :key="n" width="16" height="16" viewBox="0 0 24 24"
+                     :fill="n <= p.score ? '#f59e0b' : 'none'" stroke="#f59e0b" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" style="display:inline-block">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/>
+                </svg>
+              </span>
             </div>
           </div>
 
-          <hr class="win-sep" />
-          <button v-if="isHost" class="xp-btn action-btn" @click="restartGame">
-            <PixelIcon name="gamepad" :size="14" /> Сыграть снова
-          </button>
-          <p v-else class="wait-hint"><PixelIcon name="hourglass" :size="14" /> Ждём хоста...</p>
+          <div class="round-actions">
+            <button v-if="isHost" class="btn btn-primary action-btn" @click="restartGame">
+              <PixelIcon name="gamepad" :size="15" color="white" /> Сыграть снова
+            </button>
+            <div v-else class="wait-hint">
+              <div style="animation:spin .8s linear infinite;display:flex">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--c-primary)" stroke-width="2.5" stroke-linecap="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+              </div>
+              Ждём хоста...
+            </div>
+          </div>
         </div>
 
       </div><!-- /game-body -->
 
-      <!-- ══ Status bar: all players ══ -->
+      <!-- ══ Players status bar ══ -->
       <div class="game-statusbar">
         <div v-for="p in players" :key="p.socketId"
-             class="sb-player"
-             :class="{ 'sb-me': p.socketId === mySocketId, 'sb-host': p.socketId === hostSocketId }">
-          <PixelIcon v-if="p.socketId === hostSocketId" name="crown" :size="10" color="#f4a800" />
+             class="sb-chip"
+             :class="{ 'sb-me': p.socketId === mySocketId }">
+          <PixelIcon v-if="p.socketId === hostSocketId" name="crown" :size="10" color="#d97706" />
           <span class="sb-nick">{{ p.nickname }}</span>
           <span class="sb-score">{{ p.score }}★</span>
-          <PixelIcon v-if="phase === 'choosing' && submittedSocketIds.includes(p.socketId)"
-                     name="check" :size="10" color="#008000" />
+          <svg v-if="phase === 'choosing' && submittedSocketIds.includes(p.socketId)"
+               width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--c-success)" stroke-width="3" stroke-linecap="round">
+            <path d="M20 6 9 17l-5-5"/>
+          </svg>
         </div>
       </div>
 
@@ -357,7 +393,6 @@ const route   = useRoute()
 const router  = useRouter()
 const lobbyId = computed(() => route.params.id)
 
-// ── State ──────────────────────────────────────────────────────────────────
 const phase             = ref(gameState.phase || 'situation')
 const currentSituation  = ref(gameState.situation || null)
 const myHand            = ref(gameState.hand || [])
@@ -373,9 +408,9 @@ const submittedSoundId   = ref(null)
 const submitCount        = ref(0)
 const submittedSocketIds = ref([])
 
-const previewingId      = ref(null)  // id of sound card currently in preview
-const previewPlaying    = ref(false) // true = playing, false = paused/stopped
-let   _previewAudio     = null       // the live Audio element
+const previewingId      = ref(null)
+const previewPlaying    = ref(false)
+let   _previewAudio     = null
 
 const orderedSounds       = ref([])
 const activePlaybackIndex = ref(-1)
@@ -393,16 +428,11 @@ const gameOver     = ref(null)
 const errorMsg     = ref('')
 const showConfirm  = ref(false)
 
-// ── Computed ───────────────────────────────────────────────────────────────
-const isHost = computed(() =>
-  mySocketId.value && mySocketId.value === hostSocketId.value
-)
+const isHost = computed(() => mySocketId.value && mySocketId.value === hostSocketId.value)
 const currentPlayingItem = computed(() =>
   activePlaybackIndex.value >= 0 ? orderedSounds.value[activePlaybackIndex.value] || null : null
 )
-const hasNextPlayer = computed(() =>
-  activePlaybackIndex.value < orderedSounds.value.length - 1
-)
+const hasNextPlayer = computed(() => activePlaybackIndex.value < orderedSounds.value.length - 1)
 const sortedScores   = computed(() => [...(roundResult.value?.scores || [])].sort((a, b) => b.score - a.score))
 const sortedGameOver = computed(() => [...(gameOver.value?.scores   || [])].sort((a, b) => b.score - a.score))
 
@@ -417,20 +447,19 @@ const phaseLabel = computed(() => ({
 
 const phaseSteps = computed(() => {
   const p = phase.value
-  const order = ['situation', 'choosing', 'playback', 'voting', 'results', 'gameover']
+  const order = ['situation','choosing','playback','voting','results','gameover']
   const cur   = order.indexOf(p)
   return [
-    { n: 1, key: 'choose',   label: 'Выбор звука',     phases: ['situation', 'choosing'] },
-    { n: 2, key: 'playback', label: 'Прослушивание',   phases: ['playback'] },
-    { n: 3, key: 'vote',     label: 'Голосование',     phases: ['voting'] },
-    { n: 4, key: 'results',  label: 'Итоги',           phases: ['results', 'gameover'] },
+    { n:1, key:'choose',   label:'Выбор',        phases:['situation','choosing'] },
+    { n:2, key:'playback', label:'Прослушивание', phases:['playback'] },
+    { n:3, key:'vote',     label:'Голосование',  phases:['voting'] },
+    { n:4, key:'results',  label:'Итоги',        phases:['results','gameover'] },
   ].map(s => {
     const sIdx = order.indexOf(s.phases[0])
     return { ...s, active: s.phases.includes(p), done: sIdx < cur && !s.phases.includes(p) }
   })
 })
 
-// ── Audio utils ────────────────────────────────────────────────────────────
 function playAudio(url) {
   stopPreview()
   return new Promise(resolve => {
@@ -441,33 +470,18 @@ function playAudio(url) {
     audio.play().catch(resolve)
   })
 }
-
 function stopPreview() {
-  if (_previewAudio) {
-    _previewAudio.pause()
-    _previewAudio.onended = null
-    _previewAudio = null
-  }
+  if (_previewAudio) { _previewAudio.pause(); _previewAudio.onended = null; _previewAudio = null }
   previewingId.value   = null
   previewPlaying.value = false
 }
-
 function togglePreview(sound) {
   if (!sound?.file) return
-
-  // Same card → toggle pause/resume
   if (previewingId.value === sound.id) {
-    if (previewPlaying.value) {
-      _previewAudio.pause()
-      previewPlaying.value = false
-    } else {
-      _previewAudio.play().catch(() => {})
-      previewPlaying.value = true
-    }
+    if (previewPlaying.value) { _previewAudio.pause(); previewPlaying.value = false }
+    else { _previewAudio.play().catch(() => {}); previewPlaying.value = true }
     return
   }
-
-  // Different card → stop current, start new
   stopPreview()
   const audio = new Audio(sound.file)
   _previewAudio = audio
@@ -478,30 +492,20 @@ function togglePreview(sound) {
   audio.play().catch(() => stopPreview())
 }
 
-// ── Playback controls (host) ───────────────────────────────────────────────
 async function startPlayback() {
   playbackStarted.value = true
   playbackAborted = false
-
-  // Signal non-hosts to play TTS too
   socket.emit('playback_advance', { lobbyId: lobbyId.value, index: -1 })
-
   ttsPlaying.value = true
-  if (currentSituation.value?.audioFile) {
-    await playAudio(currentSituation.value.audioFile)
-  } else if (currentSituation.value?.text) {
-    await speakText(currentSituation.value.text)
-  }
+  if (currentSituation.value?.audioFile) await playAudio(currentSituation.value.audioFile)
+  else if (currentSituation.value?.text) await speakText(currentSituation.value.text)
   ttsPlaying.value = false
-
   if (playbackAborted) return
   await playPlayerAt(0)
 }
-
 async function playPlayerAt(index) {
   if (playbackAborted) return
   activePlaybackIndex.value = index
-  // Sync non-host clients immediately, before audio starts
   socket.emit('playback_advance', { lobbyId: lobbyId.value, index })
   isPlaying.value = true
   const item = orderedSounds.value[index]
@@ -509,7 +513,6 @@ async function playPlayerAt(index) {
   if (playbackAborted) return
   isPlaying.value = false
 }
-
 async function replayCurrentSound() {
   if (playbackAborted) return
   const index = activePlaybackIndex.value
@@ -520,17 +523,9 @@ async function replayCurrentSound() {
   if (playbackAborted) return
   isPlaying.value = false
 }
+async function nextPlayer() { await playPlayerAt(activePlaybackIndex.value + 1) }
 
-async function nextPlayer() {
-  await playPlayerAt(activePlaybackIndex.value + 1)
-}
-
-// ── Game actions ───────────────────────────────────────────────────────────
-function highlightSound(soundId) {
-  if (submitted.value) return
-  selectedSoundId.value = soundId
-}
-
+function highlightSound(soundId) { if (submitted.value) return; selectedSoundId.value = soundId }
 function submitSound() {
   if (submitted.value || !selectedSoundId.value) return
   stopPreview()
@@ -538,35 +533,19 @@ function submitSound() {
   submitted.value = true
   socket.emit('submit_sound', { lobbyId: lobbyId.value, soundId: selectedSoundId.value })
 }
-
 function isMySound(item) {
   return item.socketId === mySocketId.value ||
-         (submittedSoundId.value && item.soundId === submittedSoundId.value)
+    (submittedSoundId.value && item.soundId === submittedSoundId.value)
 }
-
-function selectVote(idx) {
-  if (voted.value) return
-  selectedVoteIndex.value = idx
-}
-
+function selectVote(idx) { if (voted.value) return; selectedVoteIndex.value = idx }
 function castVote() {
   if (selectedVoteIndex.value === null || voted.value) return
   voted.value = true
   socket.emit('cast_vote', { lobbyId: lobbyId.value, shuffleIndex: selectedVoteIndex.value })
 }
-
-function startVoting() {
-  socket.emit('request_voting', { lobbyId: lobbyId.value })
-}
-
-function requestNextRound() {
-  socket.emit('next_round', { lobbyId: lobbyId.value })
-}
-
-function restartGame() {
-  socket.emit('restart_game', { lobbyId: lobbyId.value })
-}
-
+function startVoting()     { socket.emit('request_voting', { lobbyId: lobbyId.value }) }
+function requestNextRound() { socket.emit('next_round', { lobbyId: lobbyId.value }) }
+function restartGame()      { socket.emit('restart_game', { lobbyId: lobbyId.value }) }
 function confirmLeave() {
   showConfirm.value = false
   playbackAborted = true
@@ -575,144 +554,82 @@ function confirmLeave() {
   socket.emit('leave_lobby', { lobbyId: lobbyId.value })
   router.push('/')
 }
-
-function showError(msg) {
-  errorMsg.value = msg
-  setTimeout(() => { errorMsg.value = '' }, 4000)
-}
-
+function showError(msg) { errorMsg.value = msg; setTimeout(() => { errorMsg.value = '' }, 4000) }
 function resetRound() {
   stopPreview()
-  submitted.value           = false
-  selectedSoundId.value     = null
-  submittedSoundId.value    = null
-  submitCount.value         = 0
-  submittedSocketIds.value  = []
-  voted.value               = false
-  selectedVoteIndex.value   = null
-  voteCount.value           = 0
-  orderedSounds.value       = []
-  activePlaybackIndex.value = -1
-  playbackStarted.value     = false
-  isPlaying.value           = false
-  playbackAborted           = false
-  roundResult.value         = null
-  ttsPlaying.value          = false
+  submitted.value = false; selectedSoundId.value = null; submittedSoundId.value = null
+  submitCount.value = 0; submittedSocketIds.value = []
+  voted.value = false; selectedVoteIndex.value = null; voteCount.value = 0
+  orderedSounds.value = []; activePlaybackIndex.value = -1
+  playbackStarted.value = false; isPlaying.value = false; playbackAborted = false
+  roundResult.value = null; ttsPlaying.value = false
 }
 
-// ── Socket listeners ───────────────────────────────────────────────────────
 onMounted(() => {
   mySocketId.value = socket.id
 
   socket.on('game_started', ({ situation, hand, phase: ph }) => {
-    phase.value            = ph || 'situation'
-    currentSituation.value = situation
-    myHand.value           = hand || []
-    gameState.situation    = situation
-    gameState.hand         = hand || []
+    phase.value = ph || 'situation'; currentSituation.value = situation
+    myHand.value = hand || []; gameState.situation = situation; gameState.hand = hand || []
     resetRound()
   })
-
   socket.on('situation_revealed', ({ situation }) => {
-    phase.value            = 'choosing'
-    currentSituation.value = situation
+    phase.value = 'choosing'; currentSituation.value = situation
   })
-
   socket.on('player_submitted', ({ count, total, socketId }) => {
-    submitCount.value  = count
-    totalPlayers.value = total
-    if (socketId && !submittedSocketIds.value.includes(socketId)) {
+    submitCount.value = count; totalPlayers.value = total
+    if (socketId && !submittedSocketIds.value.includes(socketId))
       submittedSocketIds.value = [...submittedSocketIds.value, socketId]
-    }
   })
-
   socket.on('playback_start', ({ orderedSounds: os, situation }) => {
-    phase.value           = 'playback'
-    orderedSounds.value   = os || []
+    phase.value = 'playback'; orderedSounds.value = os || []
     if (situation) currentSituation.value = situation
-    playbackStarted.value = false
-    isPlaying.value       = false
-    ttsPlaying.value      = false
-    playbackAborted       = false
-    // Host waits for manual start; non-host immediately shows first player card
+    playbackStarted.value = false; isPlaying.value = false
+    ttsPlaying.value = false; playbackAborted = false
     activePlaybackIndex.value = isHost.value ? -1 : 0
   })
-
-  // Non-host: sync state and play audio
   socket.on('playback_advance', ({ index }) => {
     if (isHost.value) return
-
-    // index === -1 means host started, play situation TTS
     if (index === -1) {
       ttsPlaying.value = true
       const sit = currentSituation.value
       const doTTS = async () => {
-        if (sit?.audioFile) {
-          await playAudio(sit.audioFile)
-        } else if (sit?.text) {
-          await speakText(sit.text)
-        }
+        if (sit?.audioFile) await playAudio(sit.audioFile)
+        else if (sit?.text) await speakText(sit.text)
         if (!playbackAborted) ttsPlaying.value = false
       }
-      doTTS()
-      return
+      doTTS(); return
     }
-
-    // Normal player sound
-    ttsPlaying.value = false
-    activePlaybackIndex.value = index
+    ttsPlaying.value = false; activePlaybackIndex.value = index
     const item = orderedSounds.value[index]
     if (!item?.sound?.file) return
     isPlaying.value = true
-    playAudio(item.sound.file).then(() => {
-      if (!playbackAborted) isPlaying.value = false
-    })
+    playAudio(item.sound.file).then(() => { if (!playbackAborted) isPlaying.value = false })
   })
-
   socket.on('voting_start', ({ shuffledSounds, situation }) => {
-    phase.value             = 'voting'
-    orderedSounds.value     = shuffledSounds || []
+    phase.value = 'voting'; orderedSounds.value = shuffledSounds || []
     if (situation) currentSituation.value = situation
-    voted.value             = false
-    selectedVoteIndex.value = null
-    voteCount.value         = 0
+    voted.value = false; selectedVoteIndex.value = null; voteCount.value = 0
   })
-
-  socket.on('vote_cast', ({ count, total }) => {
-    voteCount.value    = count
-    totalPlayers.value = total
-  })
-
+  socket.on('vote_cast', ({ count, total }) => { voteCount.value = count; totalPlayers.value = total })
   socket.on('round_result', (data) => {
-    phase.value       = 'results'
-    roundResult.value = data
-    players.value     = (data.scores || []).map(s => ({ ...s }))
-    playbackAborted   = true
-    isPlaying.value   = false
+    phase.value = 'results'; roundResult.value = data
+    players.value = (data.scores || []).map(s => ({ ...s }))
+    playbackAborted = true; isPlaying.value = false
   })
-
   socket.on('game_over', (data) => {
-    phase.value    = 'gameover'
-    gameOver.value = data
-    players.value  = (data.scores || []).map(s => ({ ...s }))
+    phase.value = 'gameover'; gameOver.value = data
+    players.value = (data.scores || []).map(s => ({ ...s }))
   })
-
   socket.on('lobby_updated', ({ players: p, settings: s, hostSocketId: h }) => {
-    players.value      = p || []
-    hostSocketId.value = h
-    totalPlayers.value = (p || []).length
+    players.value = p || []; hostSocketId.value = h; totalPlayers.value = (p || []).length
     if (s?.pointsToWin) settings_pts.value = s.pointsToWin
   })
-
   socket.on('game_restarted', ({ players: p, hostSocketId: h }) => {
-    players.value      = p || []
-    hostSocketId.value = h
+    players.value = p || []; hostSocketId.value = h
     router.push(`/lobby/${lobbyId.value}`)
   })
-
-  socket.on('player_kicked', ({ socketId }) => {
-    if (socketId === socket.id) router.push('/')
-  })
+  socket.on('player_kicked', ({ socketId }) => { if (socketId === socket.id) router.push('/') })
   socket.on('lobby_closed', () => router.push('/'))
   socket.on('error', ({ message }) => showError(message))
 
@@ -721,22 +638,16 @@ onMounted(() => {
     .then(r => r.ok ? r.json() : null)
     .then(lobby => {
       if (!lobby) return router.push('/')
-      players.value      = lobby.players || []
-      hostSocketId.value = lobby.hostSocketId
-      mySocketId.value   = socket.id
-      totalPlayers.value = (lobby.players || []).length
+      players.value = lobby.players || []; hostSocketId.value = lobby.hostSocketId
+      mySocketId.value = socket.id; totalPlayers.value = (lobby.players || []).length
       settings_pts.value = lobby.settings?.pointsToWin || 3
       if (lobby.phase === 'waiting') router.push(`/lobby/${lobbyId.value}`)
-      if (myHand.value.length === 0 && lobby.phase !== 'waiting') {
-        router.push(`/lobby/${lobbyId.value}`)
-      }
-    })
-    .catch(() => {})
+      if (myHand.value.length === 0 && lobby.phase !== 'waiting') router.push(`/lobby/${lobbyId.value}`)
+    }).catch(() => {})
 })
 
 onUnmounted(() => {
-  playbackAborted = true
-  cancelSpeech()
+  playbackAborted = true; cancelSpeech()
   ;['game_started','situation_revealed','player_submitted','playback_start','playback_advance',
     'voting_start','vote_cast','round_result','game_over','lobby_updated',
     'game_restarted','player_kicked','lobby_closed','error'].forEach(e => socket.off(e))
@@ -744,694 +655,335 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+@keyframes spin       { to { transform: rotate(360deg); } }
+@keyframes eqBounce   { from { height: 4px; } to { height: 28px; } }
+
 /* ── Layout ── */
 .game-wrap {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px 12px;
-  z-index: 5;
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  padding: 8px 12px; z-index: 5;
 }
-.game-window {
-  width: 100%;
-  max-width: 740px;
+.game-card {
+  width: 100%; max-width: 700px;
   height: 100%;
-  display: flex;
-  flex-direction: column;
+  background: var(--c-surface);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--c-border);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  animation: fadeScaleIn .25s ease both;
 }
 
-/* ── Titlebar extras ── */
-.host-badge {
-  margin-left: 10px;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11px;
-  color: #f4c000;
-  font-weight: bold;
+/* ── Header ── */
+.game-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--c-border);
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; background: var(--c-surface-2); flex-shrink: 0;
 }
-.error-badge {
-  margin-left: 14px;
-  font-size: 11px;
-  color: #ff8080;
+.game-header-left { display: flex; align-items: center; gap: 8px; flex: 1; overflow: hidden; }
+.game-title-icon {
+  width: 30px; height: 30px; border-radius: var(--r-sm);
+  background: var(--c-primary-light);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
+.game-title { font-size: 14px; font-weight: 600; color: var(--c-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.host-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--c-warning-bg); color: var(--c-warning);
+  border: 1px solid #fed7aa; border-radius: var(--r-full);
+  padding: 2px 8px; font-size: 11px; font-weight: 600; flex-shrink: 0;
+}
+.error-chip {
+  font-size: 11px; color: var(--c-danger); background: var(--c-danger-bg);
+  border-radius: var(--r-full); padding: 2px 8px; flex-shrink: 0;
+}
+.close-btn {
+  width: 28px; height: 28px; border-radius: var(--r-full);
+  border: none; background: transparent; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--c-text-muted); transition: all .12s;
+}
+.close-btn:hover { background: var(--c-danger-bg); color: var(--c-danger); }
 
 /* ── Phase bar ── */
 .phase-bar {
-  display: flex;
-  background: #bdb8b0;
-  border-bottom: 2px solid #808080;
-  padding: 0 8px;
-  gap: 2px;
-  flex-shrink: 0;
+  display: flex; background: var(--c-surface);
+  border-bottom: 1px solid var(--c-border);
+  padding: 0 12px; gap: 0; flex-shrink: 0;
 }
 .phase-step {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 16px;
-  font-family: Tahoma, sans-serif;
-  font-size: 12px;
-  color: #666;
-  border-bottom: 3px solid transparent;
-  user-select: none;
-  transition: color 0.1s;
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 14px; font-size: 12px; font-weight: 500;
+  color: var(--c-text-light); border-bottom: 2px solid transparent;
+  transition: all .15s; user-select: none;
 }
-.step-active {
-  color: #003399;
-  font-weight: bold;
-  border-bottom-color: #003399;
-  background: #d4d0c8;
+.step-active { color: var(--c-primary); border-bottom-color: var(--c-primary); }
+.step-done   { color: var(--c-success); }
+.step-bubble {
+  width: 18px; height: 18px; border-radius: var(--r-full);
+  background: var(--c-surface-2); border: 1.5px solid var(--c-border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; flex-shrink: 0;
+  transition: all .15s;
 }
-.step-done { color: #008000; }
-.step-num {
-  width: 18px;
-  height: 18px;
-  background: #d4d0c8;
-  border: 1px solid #808080;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: bold;
-  flex-shrink: 0;
-}
-.step-active .step-num { background: #003399; color: #fff; border-color: #003399; }
-.step-done   .step-num { background: #008000; color: #fff; border-color: #008000; }
+.step-active .step-bubble { background: var(--c-primary); border-color: var(--c-primary); color: white; }
+.step-done   .step-bubble { background: var(--c-success); border-color: var(--c-success); color: white; }
 
-/* ── Game body ── */
-.game-body {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  background: #d4d0c8;
-}
-.phase-content {
-  padding: 14px 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
+/* ── Body ── */
+.game-body { flex: 1; min-height: 0; overflow-y: auto; background: var(--c-surface); }
+.phase-content { padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; }
 
 /* ── Status bar ── */
 .game-statusbar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  background: #d4d0c8;
-  border-top: 1px solid #808080;
-  padding: 4px 8px;
-  flex-shrink: 0;
+  display: flex; flex-wrap: wrap; gap: 6px;
+  background: var(--c-surface-2); border-top: 1px solid var(--c-border);
+  padding: 8px 12px; flex-shrink: 0;
 }
-.sb-player {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-family: Tahoma, sans-serif;
-  font-size: 11px;
-  color: #444;
-  border: 2px solid;
-  border-top-color: #808080;
-  border-left-color: #808080;
-  border-bottom-color: #fff;
-  border-right-color: #fff;
-  padding: 2px 8px;
+.sb-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--c-surface); border: 1px solid var(--c-border);
+  border-radius: var(--r-full); padding: 3px 10px;
+  font-size: 12px; transition: all .1s;
 }
-.sb-me   { background: #dce8ff; }
-.sb-nick { font-weight: 500; }
-.sb-score { font-weight: bold; color: #003399; margin-left: 4px; }
+.sb-me { background: var(--c-primary-light); border-color: var(--c-primary-mid); }
+.sb-nick { font-weight: 500; color: var(--c-text); }
+.sb-score { font-weight: 700; color: var(--c-warning); margin-left: 2px; }
 
-/* ── Loading ── */
-.loading-box {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 16px 18px;
-  background: white;
-  border: 2px solid;
-  border-top-color: #808080;
-  border-left-color: #808080;
-  border-bottom-color: #fff;
-  border-right-color: #fff;
+/* ── Info banners ── */
+.info-banner {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px; border-radius: var(--r);
+  font-size: 15px; font-weight: 500;
 }
-.loading-text {
-  font-family: Tahoma, sans-serif;
-  font-size: 16px;
-  color: #003399;
-  font-weight: bold;
-}
-.blink-dots { animation: blink 1s step-end infinite; }
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+.info-loading { background: var(--c-primary-light); color: var(--c-primary); border: 1px solid var(--c-primary-mid); }
+.info-blue    { background: var(--c-primary-light); color: var(--c-primary); border: 1px solid var(--c-primary-mid); }
+.loading-spin { animation: spin .7s linear infinite; display: flex; }
 
 /* ── Section label ── */
-.section-lbl {
-  font-family: Tahoma, sans-serif;
-  font-size: 14px;
-  font-weight: bold;
-  color: #222;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+.section-label {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 600;
+  color: var(--c-text-muted); text-transform: uppercase; letter-spacing: .04em;
+  margin-top: 2px;
 }
 
 /* ── Situation panel ── */
 .situation-panel {
-  background: white;
-  border: 2px solid;
-  border-top-color: #808080;
-  border-left-color: #808080;
-  border-bottom-color: #fff;
-  border-right-color: #fff;
-  padding: 14px 18px;
+  background: linear-gradient(135deg, var(--c-primary-light), #faf5ff);
+  border: 1px solid var(--c-primary-mid);
+  border-radius: var(--r); padding: 14px 16px;
 }
 .situation-sm { padding: 10px 14px; }
-.sit-meta {
-  font-family: Tahoma, sans-serif;
-  font-size: 11px;
-  color: #888;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 6px;
-}
-.sit-text {
-  font-family: Tahoma, sans-serif;
-  font-size: 15px;
-  color: #003399;
-  font-weight: bold;
-  line-height: 1.4;
-}
+.sit-label { font-size: 11px; font-weight: 600; color: var(--c-primary); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+.sit-text  { font-size: 16px; font-weight: 600; color: var(--c-text); line-height: 1.4; }
 
 /* ── Hand cards ── */
-.hand-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
+.hand-grid { display: flex; flex-wrap: wrap; gap: 8px; }
 .sound-card {
-  background: #d4d0c8;
-  border: 2px solid;
-  border-top-color: #fff;
-  border-left-color: #fff;
-  border-bottom-color: #808080;
-  border-right-color: #808080;
-  padding: 12px 14px;
-  min-width: 150px;
-  flex: 1;
-  max-width: 230px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  cursor: pointer;
-  user-select: none;
-  transition: background 0.08s;
+  background: var(--c-surface); border: 1.5px solid var(--c-border);
+  border-radius: var(--r); padding: 12px 14px;
+  min-width: 140px; flex: 1; max-width: 220px;
+  display: flex; flex-direction: column; gap: 10px;
+  cursor: pointer; transition: all .15s;
 }
-.sound-card:hover:not(.sound-preview) { background: #ddd9d0; }
+.sound-card:hover:not(.sound-preview) {
+  border-color: var(--c-primary-mid); background: var(--c-primary-light);
+  box-shadow: 0 2px 8px rgba(99,102,241,.12); transform: translateY(-1px);
+}
+.sound-card:active:not(.sound-preview) { transform: translateY(0); }
 .card-selected {
-  border-top-color: #808080;
-  border-left-color: #808080;
-  border-bottom-color: #fff;
-  border-right-color: #fff;
-  background: #dce8ff;
-  outline: 2px solid #003399;
-  outline-offset: -2px;
+  border-color: var(--c-primary); background: var(--c-primary-light);
+  box-shadow: 0 0 0 3px rgba(99,102,241,.15);
 }
-.sound-preview { cursor: default; opacity: 0.8; border-style: dashed; }
-.card-name {
-  font-family: Tahoma, sans-serif;
-  font-size: 14px;
-  font-weight: bold;
-  color: #222;
+.sound-preview { cursor: default; opacity: .85; border-style: dashed; }
+.card-name { font-size: 14px; font-weight: 600; color: var(--c-text); }
+.card-foot { display: flex; align-items: center; gap: 8px; }
+.chosen-tag { display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; color: var(--c-success); }
+
+.preview-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 10px; border-radius: var(--r-full);
+  border: 1px solid var(--c-border); background: var(--c-surface);
+  font-size: 12px; font-weight: 500; cursor: pointer; color: var(--c-text-muted);
+  transition: all .12s;
 }
-.card-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.card-btn-sm { padding: 3px 10px; font-size: 12px; flex-shrink: 0; }
-.preview-btn--playing {
-  background: #dce8ff;
-  border-top-color: #808080;
-  border-left-color: #808080;
-  border-bottom-color: #fff;
-  border-right-color: #fff;
-  color: #003399;
-}
-.card-chosen-tag {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-family: Tahoma, sans-serif;
-  font-size: 12px;
-  color: #008000;
-  font-weight: bold;
-}
+.preview-btn:hover { background: var(--c-primary-light); border-color: var(--c-primary-mid); color: var(--c-primary); }
+.preview-btn.playing { background: var(--c-primary-light); border-color: var(--c-primary); color: var(--c-primary); }
 
 /* ── Confirm row ── */
-.confirm-row { display: flex; }
-.confirm-btn {
-  font-size: 15px;
-  font-weight: bold;
-  padding: 10px 26px;
-  color: #003399;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.confirm-btn:not(:disabled):hover { background: #e8f0ff; }
+.confirm-row { display: flex; margin-top: 4px; }
+.confirm-btn { font-size: 15px; font-weight: 600; padding: 11px 24px; }
 
 /* ── OK banner ── */
 .ok-banner {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
-  background: #f0fff0;
-  border: 2px solid;
-  border-top-color: #808080;
-  border-left-color: #808080;
-  border-bottom-color: #fff;
-  border-right-color: #fff;
-  font-family: Tahoma, sans-serif;
-  font-size: 15px;
-  color: #008000;
-  font-weight: bold;
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px; background: var(--c-success-bg);
+  border: 1px solid #a7f3d0; border-radius: var(--r);
 }
+.ok-icon {
+  width: 40px; height: 40px; background: #d1fae5; border-radius: var(--r-full);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.ok-title { font-size: 15px; font-weight: 600; color: var(--c-success); }
+.ok-sub   { font-size: 13px; color: #059669; margin-top: 2px; }
 
-/* ── Progress bar ── */
-.progress-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.progress-lbl {
-  font-family: Tahoma, sans-serif;
-  font-size: 13px;
-  color: #555;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-.progress-bar-wrap {
-  flex: 1;
-  height: 16px;
-  background: white;
-  border: 2px solid;
-  border-top-color: #808080;
-  border-left-color: #808080;
-  border-bottom-color: #fff;
-  border-right-color: #fff;
-  overflow: hidden;
-}
-.progress-bar-fill {
-  height: 100%;
-  background: repeating-linear-gradient(
-    90deg, #0a4ee8 0px, #0a4ee8 8px, #1a6aff 8px, #1a6aff 10px
-  );
-  transition: width 0.3s;
-}
+/* ── Progress row ── */
+.progress-row { display: flex; align-items: center; gap: 12px; }
+.progress-label { font-size: 13px; color: var(--c-text-muted); white-space: nowrap; flex-shrink: 0; }
+.mini-progress { flex: 1; height: 6px; background: var(--c-primary-light); border-radius: var(--r-full); overflow: hidden; }
+.mini-fill { height: 100%; background: linear-gradient(90deg, var(--c-primary), var(--c-violet)); border-radius: var(--r-full); transition: width .3s; }
 
-/* ── Playback: info/tts banners ── */
-.info-banner {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 18px;
-  background: #e8f0ff;
-  border: 2px solid;
-  border-top-color: #808080;
-  border-left-color: #808080;
-  border-bottom-color: #fff;
-  border-right-color: #fff;
-  font-family: Tahoma, sans-serif;
-  font-size: 16px;
-  color: #003399;
-  font-weight: bold;
+/* ── Now playing ── */
+.now-playing {
+  background: var(--c-surface); border: 1.5px solid var(--c-border);
+  border-radius: var(--r); padding: 16px 18px;
+  display: flex; flex-direction: column; gap: 6px; transition: all .2s;
 }
-.start-area {
-  display: flex;
-  justify-content: center;
-  padding: 20px 0;
+.np-live { border-color: var(--c-primary); box-shadow: 0 0 0 3px rgba(99,102,241,.12); }
+.np-header { display: flex; align-items: center; gap: 8px; }
+.np-status-dot {
+  width: 8px; height: 8px; border-radius: var(--r-full); flex-shrink: 0;
 }
-.start-btn {
-  font-size: 16px;
-  font-weight: bold;
-  padding: 12px 36px;
-  color: #003399;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.start-btn:hover { background: #e8f0ff; }
-
-/* ── Now playing card ── */
-.now-playing-card {
-  background: white;
-  border: 3px solid;
-  border-top-color: #fff;
-  border-left-color: #fff;
-  border-bottom-color: #808080;
-  border-right-color: #808080;
-  padding: 16px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  transition: border-color 0.2s, outline 0.2s;
-}
-.np-active {
-  border-top-color: #003399;
-  border-left-color: #003399;
-  outline: 2px solid #003399;
-  outline-offset: -3px;
-}
-.np-status-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-family: Tahoma, sans-serif;
-  font-size: 12px;
-  color: #888;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-.np-status-text { margin-left: 2px; }
-.np-player {
-  font-family: Tahoma, sans-serif;
-  font-size: 24px;
-  font-weight: bold;
-  color: #003399;
-  margin-top: 2px;
-}
-.np-sound {
-  font-family: Tahoma, sans-serif;
-  font-size: 16px;
-  color: #444;
-}
-
-/* Equalizer */
-.eq-wrap {
-  display: flex;
-  align-items: flex-end;
-  gap: 3px;
-  height: 34px;
-  margin-top: 10px;
-}
+.dot-live { background: var(--c-primary); animation: pulse 1s ease-in-out infinite; }
+.dot-done { background: var(--c-success); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+.np-status-text { font-size: 11px; font-weight: 600; color: var(--c-text-muted); text-transform: uppercase; letter-spacing: .05em; }
+.np-player { font-size: 22px; font-weight: 800; color: var(--c-primary); }
+.np-sound  { font-size: 15px; color: var(--c-text-2); }
+.equalizer { display: flex; align-items: flex-end; gap: 3px; height: 28px; margin-top: 8px; }
 .eq-bar {
-  width: 6px;
-  background: linear-gradient(to top, #003399, #4d94ff);
-  border-radius: 2px 2px 0 0;
-  animation: eqBounce 0.5s ease-in-out infinite alternate;
-}
-@keyframes eqBounce {
-  from { height: 5px;  opacity: 0.5; }
-  to   { height: 34px; opacity: 1; }
+  width: 5px; background: linear-gradient(to top, var(--c-primary), var(--c-violet));
+  border-radius: 3px 3px 0 0;
+  animation: eqBounce .45s ease-in-out infinite alternate;
 }
 
-/* ── Host buttons ── */
-.host-btns {
-  display: flex;
-  gap: 10px;
-  align-items: stretch;
-}
-.btn-replay { color: #555; padding: 8px 18px; display: flex; align-items: center; gap: 8px; }
-.btn-next {
-  flex: 1;
-  font-size: 16px;
-  font-weight: bold;
-  padding: 10px 24px;
-  color: #003399;
-}
-.btn-next:hover { background: #e8f0ff; }
-.btn-vote {
-  flex: 1;
-  font-size: 16px;
-  font-weight: bold;
-  padding: 10px 24px;
-  color: #8b6000;
-  background: #fff3cd;
-  border-top-color: #ffe080;
-  border-left-color: #ffe080;
-  border-bottom-color: #a07000;
-  border-right-color: #a07000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-.btn-vote:hover { background: #fffae0; }
-
+/* ── Host controls ── */
+.host-controls { display: flex; gap: 8px; }
+.flex-1 { flex: 1; }
 .streamer-hint {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: Tahoma, sans-serif;
-  font-size: 13px;
-  color: #777;
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--c-text-light); padding: 4px 0;
 }
+
+/* ── Start area ── */
+.start-area { display: flex; justify-content: center; padding: 16px 0; }
+.start-pb-btn { font-size: 15px; font-weight: 600; padding: 12px 32px; }
 
 /* ── Mini cards ── */
-.mini-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
+.mini-grid { display: flex; flex-wrap: wrap; gap: 6px; }
 .mini-card {
-  background: #d4d0c8;
-  border: 2px solid;
-  border-top-color: #fff;
-  border-left-color: #fff;
-  border-bottom-color: #808080;
-  border-right-color: #808080;
-  padding: 8px 12px;
-  min-width: 130px;
-  flex: 1;
-  max-width: 200px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  opacity: 0.5;
-  transition: opacity 0.2s;
+  background: var(--c-surface-2); border: 1px solid var(--c-border);
+  border-radius: var(--r-sm); padding: 8px 10px;
+  min-width: 120px; flex: 1; max-width: 180px;
+  display: flex; flex-direction: column; gap: 3px; opacity: .5; transition: all .2s;
 }
-.mini-active {
-  opacity: 1;
-  border-top-color: #003399;
-  border-left-color: #003399;
-  outline: 2px solid #003399;
-  outline-offset: -2px;
-  background: #dce8ff;
-}
-.mini-done { opacity: 0.75; }
-.mini-done .mini-nick { color: #008000; }
-.mini-icon {
-  display: flex;
-  align-items: center;
-  height: 14px;
-}
-.mini-num {
-  font-family: Tahoma, sans-serif;
-  font-size: 11px;
-  color: #888;
-  font-weight: bold;
-}
-.mini-nick {
-  font-family: Tahoma, sans-serif;
-  font-size: 13px;
-  font-weight: bold;
-  color: #222;
-}
-.mini-snd {
-  font-family: Tahoma, sans-serif;
-  font-size: 11px;
-  color: #555;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+.mc-active { opacity: 1; border-color: var(--c-primary); background: var(--c-primary-light); box-shadow: 0 0 0 2px rgba(99,102,241,.12); }
+.mc-done   { opacity: .8; }
+.mc-indicator { display: flex; align-items: center; height: 14px; }
+.mc-dot-live { width: 8px; height: 8px; border-radius: var(--r-full); background: var(--c-primary); animation: pulse 1s ease-in-out infinite; }
+.mc-num  { font-size: 10px; color: var(--c-text-light); font-weight: 700; }
+.mc-nick { font-size: 13px; font-weight: 600; color: var(--c-text); }
+.mc-snd  { font-size: 11px; color: var(--c-text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* ── Voting ── */
-.vote-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
+.vote-list { display: flex; flex-direction: column; gap: 6px; }
 .vote-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  background: #d4d0c8;
-  border: 2px solid;
-  border-top-color: #fff;
-  border-left-color: #fff;
-  border-bottom-color: #808080;
-  border-right-color: #808080;
-  font-family: Tahoma, sans-serif;
-  cursor: pointer;
-  transition: background 0.08s;
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; background: var(--c-surface);
+  border: 1.5px solid var(--c-border); border-radius: var(--r);
+  cursor: pointer; transition: all .12s;
 }
-.vote-row:not(.vote-mine):hover { background: #ddd9d0; }
-.vote-selected {
-  border-top-color: #808080;
-  border-left-color: #808080;
-  border-bottom-color: #fff;
-  border-right-color: #fff;
-  background: #dce8ff;
-  outline: 2px solid #003399;
-  outline-offset: -2px;
+.vote-row:not(.vote-mine):hover { border-color: var(--c-primary-mid); background: var(--c-primary-light); }
+.vote-selected { border-color: var(--c-primary); background: var(--c-primary-light); box-shadow: 0 0 0 3px rgba(99,102,241,.12); }
+.vote-mine { opacity: .5; cursor: default; }
+.vote-num  { font-size: 13px; font-weight: 700; color: var(--c-text-light); min-width: 22px; }
+.vote-name { flex: 1; font-size: 15px; font-weight: 600; color: var(--c-text); }
+.vote-mine-tag { font-size: 11px; color: var(--c-text-muted); font-style: italic; }
+.vote-pick-btn {
+  padding: 5px 14px; border-radius: var(--r-full);
+  border: 1.5px solid var(--c-border); background: var(--c-surface);
+  font-size: 12px; font-weight: 600; cursor: pointer; color: var(--c-text-muted);
+  transition: all .12s; white-space: nowrap;
 }
-.vote-mine { opacity: 0.5; cursor: default; }
-.vote-num { font-size: 13px; color: #888; min-width: 22px; }
-.vote-name { flex: 1; font-size: 15px; font-weight: bold; color: #222; }
-.vote-mine-tag { font-size: 12px; color: #888; font-style: italic; }
-.vote-pick-btn { white-space: nowrap; font-size: 12px; padding: 4px 14px; }
-.pick-chosen {
-  border-top-color: #808080;
-  border-left-color: #808080;
-  border-bottom-color: #fff;
-  border-right-color: #fff;
-  background: #dce8ff;
-  color: #003399;
-  font-weight: bold;
-}
+.vote-pick-btn:hover { border-color: var(--c-primary); color: var(--c-primary); background: var(--c-primary-light); }
+.pick-active { border-color: var(--c-primary); color: var(--c-primary); background: var(--c-primary-light); }
 
 /* ── Results ── */
-.results-header {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-.results-title {
-  font-family: Tahoma, sans-serif;
-  font-size: 24px;
-  font-weight: bold;
-  color: #003399;
-}
-.gameover-hdr { justify-content: center; padding: 10px 0; }
-.gameover-title { font-size: 28px; color: #8b6000; }
+.results-header { display: flex; align-items: center; gap: 12px; }
+.results-title  { font-size: 22px; font-weight: 800; color: var(--c-text); }
 
-.winner-box {
-  background: #fff3cd;
-  border: 2px solid #f4a800;
-  padding: 16px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+.winner-card {
+  background: linear-gradient(135deg, #fffbeb, #fef3c7);
+  border: 1px solid #fde68a; border-radius: var(--r); padding: 16px 20px;
+  display: flex; flex-direction: column; gap: 4px;
 }
-.winner-final { padding: 22px 26px; }
-.no-winner {
-  font-family: Tahoma, sans-serif;
-  font-size: 15px;
-  color: #666;
-  padding: 10px 0;
-}
-.winner-meta {
-  font-family: Tahoma, sans-serif;
-  font-size: 11px;
-  color: #8b6000;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-.winner-name {
-  font-family: Tahoma, sans-serif;
-  font-size: 26px;
-  font-weight: bold;
-  color: #8b4500;
-}
-.winner-snd {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-family: Tahoma, sans-serif;
-  font-size: 14px;
-  color: #666;
-  margin-top: 2px;
-}
+.winner-final { padding: 20px 24px; }
+.winner-label { font-size: 11px; font-weight: 600; color: var(--c-warning); text-transform: uppercase; letter-spacing: .05em; }
+.winner-name  { font-size: 26px; font-weight: 800; color: #92400e; }
+.winner-sound { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--c-warning); margin-top: 2px; }
+.no-winner    { font-size: 14px; color: var(--c-text-muted); padding: 10px 0; }
 
 .scores-list { display: flex; flex-direction: column; gap: 4px; }
 .score-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 7px 14px;
-  font-family: Tahoma, sans-serif;
-  font-size: 15px;
-  background: #d4d0c8;
-  border: 2px solid;
-  border-top-color: #fff;
-  border-left-color: #fff;
-  border-bottom-color: #808080;
-  border-right-color: #808080;
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 14px; background: var(--c-surface);
+  border: 1px solid var(--c-border); border-radius: var(--r-sm); font-size: 14px;
 }
-.score-winner {
-  background: #fff3cd;
-  border-top-color: #ffe080;
-  border-left-color: #ffe080;
-  border-bottom-color: #a07000;
-  border-right-color: #a07000;
-}
-.score-pos  { color: #888; min-width: 24px; }
-.score-nick { flex: 1; font-weight: bold; color: #222; }
-.score-stars { color: #f4a800; font-size: 17px; letter-spacing: 2px; }
+.sr-winner { background: #fffbeb; border-color: #fde68a; }
+.sr-pos    { font-weight: 700; color: var(--c-text-light); min-width: 20px; }
+.sr-nick   { flex: 1; font-weight: 600; color: var(--c-text); }
+.sr-stars  { display: flex; gap: 1px; }
 
-.action-btn {
-  font-size: 17px;
-  font-weight: bold;
-  padding: 12px 32px;
-  color: #003399;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+/* ── Gameover ── */
+.gameover-header {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 10px; padding: 12px 0;
 }
-.action-btn:not(:disabled):hover { background: #e8f0ff; }
+.trophy-wrap {
+  width: 80px; height: 80px;
+  background: linear-gradient(135deg, #fffbeb, #fef3c7);
+  border: 2px solid #fde68a; border-radius: var(--r-full);
+  display: flex; align-items: center; justify-content: center;
+}
+.gameover-title { font-size: 26px; font-weight: 800; color: var(--c-text); }
 
-.wait-hint {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: Tahoma, sans-serif;
-  font-size: 14px;
-  color: #666;
-  margin: 0;
-}
+/* ── Actions ── */
+.round-actions { display: flex; align-items: center; gap: 12px; margin-top: 4px; }
+.action-btn { font-size: 15px; font-weight: 600; padding: 12px 28px; }
+.wait-hint { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--c-text-muted); }
 
 /* ── Confirm dialog ── */
 .overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
+  position: fixed; inset: 0; background: rgba(15,23,42,.5);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999; backdrop-filter: blur(4px);
 }
-.dlg-win { width: 380px; }
-.dlg-body {
-  padding: 20px 22px 16px;
-  background: #d4d0c8;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
+.dlg-box {
+  background: var(--c-surface); border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg); border: 1px solid var(--c-border);
+  padding: 28px; width: 340px; max-width: calc(100vw - 32px);
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+  animation: fadeScaleIn .18s ease both; text-align: center;
 }
-.dlg-msg {
-  font-family: Tahoma, sans-serif;
-  font-size: 15px;
-  color: #222;
+.dlg-icon-wrap {
+  width: 52px; height: 52px; background: var(--c-warning-bg);
+  border-radius: var(--r-full); display: flex; align-items: center; justify-content: center;
 }
-.dlg-btns {
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-}
+.dlg-msg { font-size: 15px; color: var(--c-text); line-height: 1.5; }
+.dlg-btns { display: flex; gap: 10px; width: 100%; }
+.dlg-btns .btn { flex: 1; }
 
-@media (max-width: 680px) {
+@media (max-width: 640px) {
   .game-wrap { padding: 4px; }
-  .phase-step { padding: 4px 8px; font-size: 11px; }
-  .phase-bar { flex-wrap: wrap; }
-  .sit-text { font-size: 15px; }
-  .hand-grid { gap: 6px; }
-  .sound-card { min-width: 130px; }
-  .np-player { font-size: 22px; }
-  .mini-card { min-width: 110px; }
-  .start-btn { font-size: 15px; padding: 12px 24px; }
+  .phase-step { padding: 6px 8px; font-size: 11px; }
+  .phase-bar  { flex-wrap: wrap; }
+  .sit-text   { font-size: 14px; }
+  .hand-grid  { gap: 6px; }
+  .sound-card { min-width: 120px; }
+  .np-player  { font-size: 18px; }
+  .mini-card  { min-width: 100px; }
 }
 </style>

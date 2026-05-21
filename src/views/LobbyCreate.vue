@@ -1,59 +1,63 @@
 <template>
   <div class="create-wrap">
-    <div class="win-window create-window">
+    <div class="create-card">
 
-      <!-- Titlebar -->
-      <div class="win-titlebar">
-        <div class="win-titlebar-left">
-          <span class="win-title-icon"><PixelIcon name="gamepad" :size="14" /></span>
-          <span class="win-title-text">Создать игру — Настройки лобби</span>
-        </div>
-        <div class="win-title-btns">
-          <button class="win-ctrl">─</button>
-          <button class="win-ctrl">□</button>
-          <button class="win-ctrl win-ctrl-close" @click="router.push('/')">✕</button>
+      <!-- Header -->
+      <div class="create-header">
+        <button class="back-btn" @click="router.push('/')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        </button>
+        <div class="header-title">
+          <PixelIcon name="gamepad" :size="20" color="var(--c-primary)" />
+          <span>Новая игра</span>
         </div>
       </div>
 
       <div class="create-body">
 
         <!-- Lobby name -->
-        <div class="field-group">
-          <label class="field-label"><PixelIcon name="pencil" :size="16" /> Название лобби</label>
+        <div class="field">
+          <label class="field-label">
+            <PixelIcon name="pencil" :size="15" color="var(--c-primary)" />
+            Название лобби
+          </label>
           <input
-            class="xp-input field-input"
+            class="input"
             v-model="lobbyName"
             placeholder="Новая игра"
             maxlength="40"
           />
         </div>
 
-        <hr class="win-sep" />
-
         <!-- Max players -->
-        <div class="field-group">
-          <label class="field-label"><PixelIcon name="people" :size="16" /> Максимум игроков</label>
-          <div class="spinner-row">
-            <button class="spin-btn" @click="settings.maxPlayers = Math.max(2, settings.maxPlayers - 1)">◀</button>
-            <div class="spin-display">
-              <span class="spin-value">{{ settings.maxPlayers }}</span>
-              <div class="spin-bar">
-                <div
-                  class="spin-fill"
-                  :style="{ width: ((settings.maxPlayers - 2) / 8 * 100) + '%' }"
-                />
+        <div class="field">
+          <label class="field-label">
+            <PixelIcon name="people" :size="15" color="var(--c-primary)" />
+            Максимум игроков
+          </label>
+          <div class="counter-row">
+            <button class="counter-btn" @click="settings.maxPlayers = Math.max(3, settings.maxPlayers - 1)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg>
+            </button>
+            <div class="counter-display">
+              <span class="counter-value">{{ settings.maxPlayers }}</span>
+              <div class="counter-track">
+                <div class="counter-fill" :style="{ width: ((settings.maxPlayers - 3) / 7 * 100) + '%' }" />
               </div>
-              <span class="spin-hint">из 10</span>
+              <span class="counter-hint">из 10</span>
             </div>
-            <button class="spin-btn" @click="settings.maxPlayers = Math.min(10, settings.maxPlayers + 1)">▶</button>
+            <button class="counter-btn" @click="settings.maxPlayers = Math.min(10, settings.maxPlayers + 1)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
           </div>
         </div>
 
-        <hr class="win-sep" />
-
         <!-- Points to win -->
-        <div class="field-group">
-          <label class="field-label"><PixelIcon name="star" :size="16" /> Очков для победы</label>
+        <div class="field">
+          <label class="field-label">
+            <PixelIcon name="star" :size="15" color="var(--c-primary)" />
+            Очков для победы
+          </label>
           <div class="stars-row">
             <button
               v-for="n in 3" :key="n"
@@ -61,39 +65,41 @@
               :class="{ active: n <= settings.pointsToWin }"
               @click="settings.pointsToWin = n"
             >
-              {{ n <= settings.pointsToWin ? '★' : '☆' }}
+              <svg width="28" height="28" viewBox="0 0 24 24" :fill="n <= settings.pointsToWin ? '#f59e0b' : 'none'" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/>
+              </svg>
             </button>
-            <span class="star-label">{{ settings.pointsToWin }} {{ settings.pointsToWin === 1 ? 'очко' : 'очка' }}</span>
+            <span class="stars-label">{{ settings.pointsToWin }} {{ settings.pointsToWin === 1 ? 'очко' : 'очка' }}</span>
           </div>
         </div>
-
-        <hr class="win-sep" />
 
         <!-- Summary -->
         <div class="summary-box">
-          <div class="summary-title">Итог:</div>
-          <div class="summary-row">
-            <span class="summary-key">Лобби</span>
-            <span class="summary-val">{{ lobbyName || 'Новая игра' }}</span>
-          </div>
-          <div class="summary-row">
-            <span class="summary-key">Игроков</span>
-            <span class="summary-val">до {{ settings.maxPlayers }}</span>
-          </div>
-          <div class="summary-row">
-            <span class="summary-key">Победа</span>
-            <span class="summary-val">{{ settings.pointsToWin }} {{ settings.pointsToWin === 1 ? 'очко' : 'очка' }}</span>
+          <div class="summary-title">Итог настроек</div>
+          <div class="summary-grid">
+            <div class="summary-item">
+              <span class="si-key">Лобби</span>
+              <span class="si-val">{{ lobbyName || 'Новая игра' }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="si-key">Игроков</span>
+              <span class="si-val">до {{ settings.maxPlayers }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="si-key">Победа</span>
+              <span class="si-val">{{ settings.pointsToWin }} {{ settings.pointsToWin === 1 ? 'очко' : 'очка' }}</span>
+            </div>
           </div>
         </div>
 
-        <p v-if="error" class="error-msg" style="margin-top:6px">{{ error }}</p>
+        <p v-if="error" class="error-msg">{{ error }}</p>
 
         <!-- Actions -->
         <div class="create-actions">
-          <button class="xp-btn" @click="router.push('/')">← Назад</button>
-          <button class="xp-btn create-btn" :disabled="loading" @click="create">
-            <PixelIcon v-if="loading" name="hourglass" :size="14" />
-            <PixelIcon v-else name="rocket" :size="14" />
+          <button class="btn btn-ghost" @click="router.push('/')">← Назад</button>
+          <button class="btn btn-primary create-go-btn" :disabled="loading" @click="create">
+            <PixelIcon v-if="loading" name="hourglass" :size="16" color="white" />
+            <PixelIcon v-else name="rocket" :size="16" color="white" />
             {{ loading ? 'Создаём...' : 'Создать игру' }}
           </button>
         </div>
@@ -136,192 +142,127 @@ function create() {
 
 <style scoped>
 .create-wrap {
-  position: absolute;
-  inset: 0;
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px; z-index: 5;
+}
+
+.create-card {
+  width: 520px;
+  max-width: 100%;
+  background: var(--c-surface);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--c-border);
+  animation: fadeScaleIn .25s ease both;
+  overflow: hidden;
+}
+
+/* Header */
+.create-header {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--c-border);
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 20px;
-  z-index: 5;
+  gap: 12px;
+  background: var(--c-surface-2);
+}
+.back-btn {
+  width: 34px; height: 34px;
+  border-radius: var(--r-sm);
+  border: 1.5px solid var(--c-border);
+  background: var(--c-surface);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--c-text-muted);
+  transition: all .12s;
+  flex-shrink: 0;
+}
+.back-btn:hover { background: var(--c-primary-light); border-color: var(--c-primary-mid); color: var(--c-primary); }
+.header-title {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 16px; font-weight: 700; color: var(--c-text);
 }
 
-.create-window {
-  width: 680px;
-  max-width: 100%;
-}
-
+/* Body */
 .create-body {
-  background: #d4d0c8;
-  padding: 26px 32px 24px;
+  padding: 22px 24px 20px;
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-/* Field group */
-.field-group {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
+/* Field */
+.field { display: flex; flex-direction: column; gap: 8px; }
 .field-label {
-  font-family: Tahoma, sans-serif;
-  font-size: 17px;
-  font-weight: bold;
-  color: #222;
-}
-.field-input {
-  font-size: 16px;
-  padding: 6px 10px;
+  display: flex; align-items: center; gap: 6px;
+  font-size: 13px; font-weight: 600;
+  color: var(--c-text-muted); text-transform: uppercase; letter-spacing: .04em;
 }
 
-/* Spinner */
-.spinner-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.spin-btn {
-  background: #d4d0c8;
-  border: 2px solid;
-  border-top-color: #fff;
-  border-left-color: #fff;
-  border-bottom-color: #808080;
-  border-right-color: #808080;
-  width: 42px;
-  height: 42px;
-  font-size: 18px;
+/* Counter */
+.counter-row { display: flex; align-items: center; gap: 12px; }
+.counter-btn {
+  width: 36px; height: 36px;
+  border-radius: var(--r-sm);
+  border: 1.5px solid var(--c-border);
+  background: var(--c-surface);
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--c-text-muted);
+  transition: all .12s;
   flex-shrink: 0;
 }
-.spin-btn:hover { background: #e0dcd4; }
-.spin-btn:active {
-  border-top-color: #808080;
-  border-left-color: #808080;
-  border-bottom-color: #fff;
-  border-right-color: #fff;
+.counter-btn:hover { background: var(--c-primary-light); border-color: var(--c-primary-mid); color: var(--c-primary); }
+.counter-display { flex: 1; display: flex; align-items: center; gap: 10px; }
+.counter-value {
+  font-size: 28px; font-weight: 800;
+  color: var(--c-primary); min-width: 38px; text-align: center;
 }
-
-.spin-display {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.counter-track {
+  flex: 1; height: 6px; background: var(--c-primary-light);
+  border-radius: var(--r-full); overflow: hidden;
 }
-.spin-value {
-  font-family: Tahoma, sans-serif;
-  font-size: 28px;
-  font-weight: bold;
-  color: #003399;
-  min-width: 36px;
-  text-align: center;
-}
-.spin-bar {
-  flex: 1;
-  height: 18px;
-  background: white;
-  border: 2px solid;
-  border-top-color: #808080;
-  border-left-color: #808080;
-  border-bottom-color: #fff;
-  border-right-color: #fff;
-  overflow: hidden;
-}
-.spin-fill {
+.counter-fill {
   height: 100%;
-  background: repeating-linear-gradient(
-    90deg,
-    #0a4ee8 0px, #0a4ee8 8px,
-    #1a6aff 8px, #1a6aff 10px
-  );
-  transition: width 0.15s;
+  background: linear-gradient(90deg, var(--c-primary), var(--c-violet));
+  border-radius: var(--r-full);
+  transition: width .15s;
 }
-.spin-hint {
-  font-family: Tahoma, sans-serif;
-  font-size: 12px;
-  color: #666;
-  white-space: nowrap;
-}
+.counter-hint { font-size: 12px; color: var(--c-text-light); white-space: nowrap; }
 
 /* Stars */
-.stars-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
+.stars-row { display: flex; align-items: center; gap: 4px; }
 .star-btn {
-  font-size: 38px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #aaa;
-  padding: 0;
-  line-height: 1;
-  transition: transform 0.1s, color 0.1s;
+  background: none; border: none; cursor: pointer; padding: 2px;
+  border-radius: 6px; transition: transform .1s;
 }
-.star-btn.active { color: #f4a800; }
-.star-btn:hover  { transform: scale(1.2); }
-.star-label {
-  font-family: Tahoma, sans-serif;
-  font-size: 16px;
-  color: #555;
-  margin-left: 8px;
-}
+.star-btn:hover { transform: scale(1.2); }
+.stars-label { font-size: 14px; color: var(--c-text-muted); margin-left: 6px; }
 
 /* Summary */
 .summary-box {
-  background: white;
-  border: 2px solid;
-  border-top-color: #808080;
-  border-left-color: #808080;
-  border-bottom-color: #fff;
-  border-right-color: #fff;
-  padding: 10px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r);
+  padding: 14px 16px;
 }
 .summary-title {
-  font-family: Tahoma, sans-serif;
-  font-size: 12px;
-  color: #888;
-  margin-bottom: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-size: 11px; font-weight: 600; color: var(--c-text-light);
+  text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px;
 }
-.summary-row {
-  display: flex;
-  gap: 12px;
-  font-family: Tahoma, sans-serif;
-  font-size: 15px;
-}
-.summary-key { color: #666; min-width: 90px; }
-.summary-val { color: #003399; font-weight: bold; }
+.summary-grid { display: flex; flex-direction: column; gap: 6px; }
+.summary-item { display: flex; justify-content: space-between; align-items: center; }
+.si-key { font-size: 13px; color: var(--c-text-muted); }
+.si-val { font-size: 13px; font-weight: 600; color: var(--c-primary); }
 
 /* Actions */
-.create-actions {
-  display: flex;
-  gap: 12px;
-  justify-content: flex-end;
-}
-.create-btn {
-  flex: 1;
-  font-size: 17px;
-  font-weight: bold;
-  padding: 12px 20px;
-  color: #003399;
-}
-.create-btn:not(:disabled):hover {
-  background: #e8f0ff;
-}
+.create-actions { display: flex; gap: 10px; }
+.create-go-btn { flex: 1; font-size: 15px; font-weight: 600; padding: 12px 20px; }
 
-@media (max-width: 520px) {
+@media (max-width: 560px) {
   .create-wrap { padding: 8px; }
-  .create-body { padding: 14px 14px 16px; }
+  .create-body { padding: 16px; }
   .create-actions { flex-direction: column; }
-  .create-btn { flex: none; }
 }
 </style>
