@@ -273,6 +273,7 @@ onMounted(async () => {
     gameState.hand = hand || []
     gameState.phase = phase
     gameState.lobbyId = currentLobbyId.value
+    leaveConfirmed.value = true
     router.push(`/game/${currentLobbyId.value}`)
   })
   socket.on('game_restarted', ({ players: p, settings: s, hostSocketId: h }) => {
@@ -301,7 +302,7 @@ onMounted(async () => {
         mySocketId.value = socket.id
         prevIds.value = lobby.players.map(p => p.socketId)
         addLog(`Загружено. Игроков: ${lobby.players.length}`, 'lc-ok')
-        if (lobby.phase !== 'waiting') router.push(`/game/${currentLobbyId.value}`)
+        if (lobby.phase !== 'waiting') { leaveConfirmed.value = true; router.push(`/game/${currentLobbyId.value}`) }
       } else { router.push('/') }
     } catch {}
   }
