@@ -33,6 +33,15 @@
           </span>
           <span v-if="errorMsg" class="error-chip">{{ errorMsg }}</span>
         </div>
+        <div class="volume-control">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="vol-icon">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <path v-if="volume > 0.5" d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+            <path v-else-if="volume > 0" d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+          </svg>
+          <input type="range" class="vol-slider" min="0" max="1" step="0.01" v-model.number="volume" />
+          <span class="vol-label">{{ Math.round(volume * 100) }}%</span>
+        </div>
         <button class="close-btn" @click="showConfirm = true" title="Выйти">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
         </button>
@@ -382,7 +391,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import socket from '../socket.js'
 import { gameState } from '../gameState.js'
@@ -411,6 +420,9 @@ const submittedSocketIds = ref([])
 const previewingId      = ref(null)
 const previewPlaying    = ref(false)
 let   _previewAudio     = null
+
+const volume = ref(0.5)
+watch(volume, v => { if (_previewAudio) _previewAudio.volume = v })
 
 const orderedSounds       = ref([])
 const activePlaybackIndex = ref(-1)
@@ -465,6 +477,7 @@ function playAudio(url) {
   return new Promise(resolve => {
     if (!url) return resolve()
     const audio = new Audio(url)
+    audio.volume = volume.value
     audio.onended = resolve
     audio.onerror = resolve
     audio.play().catch(resolve)
@@ -484,6 +497,7 @@ function togglePreview(sound) {
   }
   stopPreview()
   const audio = new Audio(sound.file)
+  audio.volume = volume.value
   _previewAudio = audio
   previewingId.value   = sound.id
   previewPlaying.value = true
@@ -976,14 +990,47 @@ onUnmounted(() => {
 .dlg-btns { display: flex; gap: 10px; width: 100%; }
 .dlg-btns .btn { flex: 1; }
 
+/* ── Volume control ── */
+.volume-control {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--c-surface-2); border: 1px solid var(--c-border);
+  border-radius: var(--r-full); padding: 4px 10px;
+}
+.vol-icon { color: var(--c-text-muted); flex-shrink: 0; }
+.vol-slider {
+  width: 80px; height: 4px; cursor: pointer;
+  -webkit-appearance: none; appearance: none;
+  background: linear-gradient(to right, var(--c-primary) 0%, var(--c-primary) calc(var(--val, 50) * 1%), var(--c-primary-mid) calc(var(--val, 50) * 1%), var(--c-primary-mid) 100%);
+  border-radius: var(--r-full); outline: none; border: none;
+}
+.vol-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--c-primary); cursor: pointer;
+  box-shadow: 0 1px 4px rgba(99,102,241,.4);
+}
+.vol-slider::-moz-range-thumb {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--c-primary); cursor: pointer; border: none;
+}
+.vol-label { font-size: 11px; color: var(--c-text-muted); min-width: 28px; text-align: right; }
+
 @media (max-width: 640px) {
-  .game-wrap { padding: 4px; }
-  .phase-step { padding: 6px 8px; font-size: 11px; }
-  .phase-bar  { flex-wrap: wrap; }
+  .game-wrap  { padding: 4px; }
+  .game-card  { border-radius: var(--r); }
+  .phase-step { padding: 5px 6px; font-size: 10px; }
+  .phase-bar  { flex-wrap: wrap; gap: 4px; }
+  .step-label { display: none; }
   .sit-text   { font-size: 14px; }
-  .hand-grid  { gap: 6px; }
-  .sound-card { min-width: 120px; }
-  .np-player  { font-size: 18px; }
-  .mini-card  { min-width: 100px; }
+  .hand-grid  { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .sound-card { min-width: 0; max-width: none; }
+  .np-player  { font-size: 16px; }
+  .mini-card  { min-width: 80px; }
+  .volume-control { padding: 4px 8px; }
+  .vol-slider { width: 60px; }
+  .vol-label  { display: none; }
+  .game-header-left { gap: 6px; }
+  .confirm-btn { width: 100%; }
+  .player-chips { flex-wrap: wrap; gap: 4px; }
 }
 </style>

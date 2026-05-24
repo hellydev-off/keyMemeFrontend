@@ -262,7 +262,10 @@ function create() {
 
 @media (max-width: 560px) {
   .create-wrap { padding: 8px; }
-  .create-body { padding: 16px; }
+  .create-body { padding: 14px; gap: 16px; }
   .create-actions { flex-direction: column; }
+  .counter-value { font-size: 22px; }
+  .stars-row { gap: 2px; }
+  .summary-box { padding: 10px 12px; }
 }
 </style>

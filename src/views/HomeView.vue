@@ -326,9 +326,16 @@ function joinByCode() {
 .slide-enter-from, .slide-leave-to { opacity: 0; transform: translateY(-8px); }
 
 @media (max-width: 560px) {
-  .home-wrap { padding: 8px; }
+  .home-wrap  { padding: 8px; }
   .home-hero  { padding: 20px; gap: 12px; }
   .hero-title { font-size: 26px; }
   .hero-icon  { width: 52px; height: 52px; }
+  .action-card { padding: 12px; gap: 10px; }
+  .action-icon-wrap { width: 40px; height: 40px; }
+  .action-title { font-size: 14px; }
+  .action-desc  { font-size: 11px; }
+  .join-row { flex-direction: column; }
+  .join-input { font-size: 14px; }
+  .boot-panel { padding: 12px 16px; }
 }
 </style>

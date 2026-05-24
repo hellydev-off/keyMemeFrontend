@@ -514,8 +514,12 @@ body {
   .nav-link  { padding: 5px 8px; font-size: 13px; }
   .nav-logo-text { font-size: 17px; }
   .page-center { padding: 8px; }
+  .nav-join-panel { min-width: calc(100vw - 32px); left: 16px; transform: none; }
+  .join-slide-enter-from, .join-slide-leave-to { transform: translateY(-6px); }
 }
 @media (max-width: 400px) {
-  .nav-link span:not(.nav-logo-text) { display: none; }
+  .nav-link svg { display: none; }
+  .nav-link { padding: 5px 6px; font-size: 12px; }
+  .nav-logo-text { font-size: 15px; }
 }
 </style>
