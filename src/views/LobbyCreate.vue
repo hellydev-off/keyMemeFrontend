@@ -268,4 +268,13 @@ function create() {
   .stars-row { gap: 2px; }
   .summary-box { padding: 10px 12px; }
 }
+@media (max-width: 360px) {
+  .create-wrap { padding: 0; }
+  .create-card { border-radius: 0; min-height: 100dvh; }
+  .create-header { padding: 10px 12px; }
+  .header-title { font-size: 14px; }
+  .create-body { padding: 12px; gap: 14px; }
+  .counter-value { font-size: 20px; }
+  .summary-box { padding: 8px 10px; }
+}
 </style>

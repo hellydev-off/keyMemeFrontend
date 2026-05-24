@@ -28,6 +28,7 @@
             <PixelIcon name="gamepad" :size="16" color="var(--c-primary)" />
           </div>
           <span class="game-title">{{ phaseLabel }}</span>
+          <span class="round-chip">Раунд {{ roundNumber }}</span>
           <span v-if="isHost" class="host-chip">
             <PixelIcon name="crown" :size="11" color="#d97706" /> Стример
           </span>
@@ -392,7 +393,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 import socket from '../socket.js'
 import { gameState } from '../gameState.js'
 import { speakText, cancelSpeech } from '../tts.js'
@@ -439,6 +440,10 @@ const roundResult  = ref(null)
 const gameOver     = ref(null)
 const errorMsg     = ref('')
 const showConfirm  = ref(false)
+const roundNumber  = ref(1)
+const pointsToWin  = ref(3)
+const leaveConfirmed  = ref(false)
+const pendingNavigation = ref(null)
 
 const isHost = computed(() => mySocketId.value && mySocketId.value === hostSocketId.value)
 const currentPlayingItem = computed(() =>
@@ -562,12 +567,20 @@ function requestNextRound() { socket.emit('next_round', { lobbyId: lobbyId.value
 function restartGame()      { socket.emit('restart_game', { lobbyId: lobbyId.value }) }
 function confirmLeave() {
   showConfirm.value = false
+  leaveConfirmed.value = true
   playbackAborted = true
   stopPreview()
   cancelSpeech()
   socket.emit('leave_lobby', { lobbyId: lobbyId.value })
-  router.push('/')
+  router.push(pendingNavigation.value || '/')
 }
+
+onBeforeRouteLeave((to, from, next) => {
+  if (leaveConfirmed.value || phase.value === 'gameover') { next(); return }
+  pendingNavigation.value = to.fullPath
+  showConfirm.value = true
+  next(false)
+})
 function showError(msg) { errorMsg.value = msg; setTimeout(() => { errorMsg.value = '' }, 4000) }
 function resetRound() {
   stopPreview()
@@ -579,12 +592,22 @@ function resetRound() {
   roundResult.value = null; ttsPlaying.value = false
 }
 
+function beforeUnloadHandler(e) {
+  if (phase.value !== 'gameover') {
+    e.preventDefault()
+    e.returnValue = ''
+  }
+}
+
 onMounted(() => {
+  window.addEventListener('beforeunload', beforeUnloadHandler)
   mySocketId.value = socket.id
 
-  socket.on('game_started', ({ situation, hand, phase: ph }) => {
+  socket.on('game_started', ({ situation, hand, phase: ph, round, pointsToWin: pts }) => {
     phase.value = ph || 'situation'; currentSituation.value = situation
     myHand.value = hand || []; gameState.situation = situation; gameState.hand = hand || []
+    if (round) roundNumber.value = round
+    if (pts)   pointsToWin.value = pts
     resetRound()
   })
   socket.on('situation_revealed', ({ situation }) => {
@@ -641,10 +664,13 @@ onMounted(() => {
   })
   socket.on('game_restarted', ({ players: p, hostSocketId: h }) => {
     players.value = p || []; hostSocketId.value = h
+    leaveConfirmed.value = true
     router.push(`/lobby/${lobbyId.value}`)
   })
-  socket.on('player_kicked', ({ socketId }) => { if (socketId === socket.id) router.push('/') })
-  socket.on('lobby_closed', () => router.push('/'))
+  socket.on('player_kicked', ({ socketId }) => {
+    if (socketId === socket.id) { leaveConfirmed.value = true; router.push('/') }
+  })
+  socket.on('lobby_closed', () => { leaveConfirmed.value = true; router.push('/') })
   socket.on('error', ({ message }) => showError(message))
 
   const base = import.meta.env.VITE_SERVER_URL || ''
@@ -661,6 +687,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  window.removeEventListener('beforeunload', beforeUnloadHandler)
   playbackAborted = true; cancelSpeech()
   ;['game_started','situation_revealed','player_submitted','playback_start','playback_advance',
     'voting_start','vote_cast','round_result','game_over','lobby_updated',
@@ -709,6 +736,11 @@ onUnmounted(() => {
   background: var(--c-warning-bg); color: var(--c-warning);
   border: 1px solid #fed7aa; border-radius: var(--r-full);
   padding: 2px 8px; font-size: 11px; font-weight: 600; flex-shrink: 0;
+}
+.round-chip {
+  font-size: 11px; font-weight: 700; color: var(--c-primary);
+  background: var(--c-primary-light); border: 1px solid var(--c-primary-mid);
+  border-radius: var(--r-full); padding: 2px 8px; flex-shrink: 0; white-space: nowrap;
 }
 .error-chip {
   font-size: 11px; color: var(--c-danger); background: var(--c-danger-bg);
@@ -1032,5 +1064,40 @@ onUnmounted(() => {
   .game-header-left { gap: 6px; }
   .confirm-btn { width: 100%; }
   .player-chips { flex-wrap: wrap; gap: 4px; }
+}
+
+@media (max-width: 360px) {
+  .game-wrap  { padding: 0; }
+  .game-card  { border-radius: 0; min-height: 100dvh; }
+  .game-header { padding: 8px 10px; gap: 6px; }
+  .game-title-icon { width: 24px; height: 24px; }
+  .game-title { font-size: 12px; }
+  .round-chip { display: none; }
+  .host-chip  { display: none; }
+  .volume-control { display: none; }
+  .phase-bar  { padding: 0 6px; }
+  .phase-step { padding: 4px 4px; }
+  .step-bubble { width: 16px; height: 16px; font-size: 9px; }
+  .phase-content { padding: 10px; gap: 10px; }
+  .sit-text   { font-size: 13px; }
+  .situation-panel { padding: 10px 12px; }
+  .sound-card { padding: 10px 10px; gap: 8px; }
+  .card-name  { font-size: 13px; }
+  .preview-btn { font-size: 11px; padding: 3px 8px; }
+  .hand-grid  { gap: 4px; }
+  .np-player  { font-size: 14px; }
+  .np-sound   { font-size: 13px; }
+  .mini-card  { padding: 6px 8px; }
+  .mc-nick    { font-size: 12px; }
+  .vote-row   { padding: 8px 10px; gap: 6px; }
+  .vote-name  { font-size: 13px; }
+  .vote-pick-btn { font-size: 11px; padding: 4px 8px; }
+  .action-btn { font-size: 13px; padding: 10px 16px; }
+  .winner-name { font-size: 20px; }
+  .results-title { font-size: 18px; }
+  .score-row  { padding: 7px 10px; font-size: 13px; }
+  .sb-chip    { padding: 2px 6px; font-size: 11px; }
+  .dlg-box    { padding: 20px; width: calc(100vw - 16px); }
+  .confirm-row { flex-direction: column; }
 }
 </style>

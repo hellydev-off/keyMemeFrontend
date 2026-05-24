@@ -338,4 +338,20 @@ function joinByCode() {
   .join-input { font-size: 14px; }
   .boot-panel { padding: 12px 16px; }
 }
+@media (max-width: 360px) {
+  .home-wrap  { padding: 0; }
+  .home-card  { border-radius: 0; min-height: 100dvh; }
+  .home-hero  { padding: 14px; gap: 10px; }
+  .hero-title { font-size: 22px; }
+  .hero-sub   { font-size: 12px; }
+  .hero-icon  { width: 44px; height: 44px; }
+  .home-actions { padding: 10px 12px; gap: 8px; }
+  .action-card  { padding: 10px; gap: 8px; }
+  .action-icon-wrap { width: 34px; height: 34px; }
+  .action-title { font-size: 13px; }
+  .action-desc  { display: none; }
+  .boot-panel { padding: 10px 12px; gap: 6px; }
+  .boot-row   { font-size: 12px; }
+  .home-footer { padding: 8px 12px; font-size: 10px; }
+}
 </style>

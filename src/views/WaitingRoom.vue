@@ -526,4 +526,15 @@ onUnmounted(() => {
   .host-action { width: 100%; }
   .leave-btn { width: 100%; justify-content: center; }
 }
+@media (max-width: 360px) {
+  .lobby-wrap { padding: 0; }
+  .lobby-card { border-radius: 0; max-height: 100dvh; }
+  .lobby-header { padding: 8px 10px; }
+  .lobby-title span { font-size: 13px; }
+  .lobby-badge { display: none; }
+  .invite-code { font-size: 14px; letter-spacing: .04em; }
+  .player-row { padding: 8px 10px; }
+  .player-nick { font-size: 12px; }
+  .player-avatar { width: 28px; height: 28px; font-size: 11px; }
+}
 </style>

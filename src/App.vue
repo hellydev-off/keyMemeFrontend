@@ -522,4 +522,11 @@ body {
   .nav-link { padding: 5px 6px; font-size: 12px; }
   .nav-logo-text { font-size: 15px; }
 }
+@media (max-width: 360px) {
+  .nav-bar { padding: 0 8px; gap: 4px; }
+  .nav-logo { gap: 6px; }
+  .nav-logo-text { font-size: 14px; }
+  .nav-link { font-size: 11px; padding: 4px 5px; }
+  .nav-join-btn { font-size: 11px; padding: 4px 8px; }
+}
 </style>
